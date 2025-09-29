@@ -1,6 +1,5 @@
-
+/* eslint-disable react/prop-types */
 export default function Pagination({ page, totalPages, onPageChange }) {
-
   const makePages = () => {
     const pages = new Set([1, totalPages]);
     for (let p = page - 2; p <= page + 2; p++) {
@@ -16,8 +15,10 @@ export default function Pagination({ page, totalPages, onPageChange }) {
       aria-label={ariaLabel}
       disabled={disabled}
       onClick={onClick}
-      className={`px-3 py-2 rounded-md border text-sm
-        ${disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-white/10"}
+      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors
+        ${disabled
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
       `}
     >
       {children}
@@ -25,7 +26,7 @@ export default function Pagination({ page, totalPages, onPageChange }) {
   );
 
   return (
-    <nav className="flex items-center justify-center gap-2" aria-label="Pagination Navigation">
+    <nav className="flex items-center justify-center gap-2 mt-4" aria-label="Pagination Navigation">
       <Button
         ariaLabel="Go to previous page"
         disabled={page <= 1}
@@ -39,12 +40,14 @@ export default function Pagination({ page, totalPages, onPageChange }) {
         const showEllipsis = i > 0 && p - prev > 1;
         return (
           <span key={p} className="flex items-center">
-            {showEllipsis && <span className="px-2 select-none">…</span>}
+            {showEllipsis && <span className="px-2 select-none text-gray-400">…</span>}
             <button
               aria-current={p === page ? "page" : undefined}
               onClick={() => onPageChange(p)}
-              className={`min-w-9 px-3 py-2 rounded-md border text-sm mx-0.5
-                ${p === page ? "bg-white/10 font-semibold" : "hover:bg-white/10"}
+              className={`min-w-9 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                ${p === page
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
               `}
             >
               {p}
