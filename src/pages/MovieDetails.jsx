@@ -150,6 +150,14 @@ export default function MovieDetails() {
                 <span className="detail-stat-label">Language</span>
               </div>
             )}
+
+            {movie.genres?.length > 0 && (
+              <div className="detail-stat-genres">
+                {movie.genres.map((g) => (
+                  <span key={g.id} className="genre-tag">{g.name}</span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Overview card — stretches to poster height, scrolls if needed */}
@@ -171,15 +179,6 @@ export default function MovieDetails() {
             </div>
           )}
         </div>
-
-        {/* Genres */}
-        {movie.genres?.length > 0 && (
-          <div className="genres" style={{ marginTop: 16 }}>
-            {movie.genres.map((g) => (
-              <span key={g.id} className="genre-tag">{g.name}</span>
-            ))}
-          </div>
-        )}
 
         {/* ── Cast ── */}
         {cast.length > 0 && (

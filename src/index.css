@@ -546,7 +546,16 @@
   .detail-bento-stats {
     grid-area: stats;
     justify-content: space-between;
+    align-items: center;
     gap: 0;
+    text-align: center;
+  }
+
+  .detail-stat-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
   }
 
   .detail-bento-overview {
@@ -583,6 +592,7 @@
   .detail-stat {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 3px;
   }
 
