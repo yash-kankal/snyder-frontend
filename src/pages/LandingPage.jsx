@@ -78,7 +78,7 @@ export default function LandingPage() {
           Snyder<span className="text-gradient">Movies</span>
         </h1>
         <p className="landing-tagline">
-          Browse ratings, trailers, cast &amp; crew for any movie — fast, clean, and ad-free. The IMDb alternative that stays out of your way.
+          Browse ratings, trailers, cast &amp; crew for any movie. The IMDb alternative that's faster, cleaner, and ad-free.
         </p>
         <Link to="/browse?section=trending" className="landing-cta">
           Start Discovering →
