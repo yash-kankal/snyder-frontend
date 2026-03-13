@@ -41,7 +41,6 @@ export default function MovieDetails() {
         setMovie(details)
         setCast(credits.cast?.slice(0, 15) || [])
 
-        // Key crew — deduplicated by person+job
         const seen = new Set()
         const filteredCrew = (credits.crew || [])
           .filter(c => KEY_CREW_JOBS.includes(c.job))
@@ -54,7 +53,6 @@ export default function MovieDetails() {
           .slice(0, 12)
         setCrew(filteredCrew)
 
-        // First official YouTube trailer
         const tr = (videos.results || []).find(
           v => v.site === 'YouTube' && v.type === 'Trailer' && v.official
         ) || (videos.results || []).find(
@@ -108,23 +106,29 @@ export default function MovieDetails() {
 
       <div className="wrapper detail-wrapper">
 
-        {/* ── Hero row: poster + info ── */}
+        {/* ── Hero row ── */}
         <div className="movie-details-layout">
+
+          {/* Poster */}
           <div className="movie-details-poster">
             <img src={posterUrl} alt={movie.title} />
           </div>
 
+          {/* Info + bento grid */}
           <div className="movie-details-info">
             <h1 className="detail-title">{movie.title}</h1>
 
-            {/* Two side-by-side cards */}
-            <div className="detail-cards-row">
+            {/* Bento: stats | overview, trailer spans full width below */}
+            <div className="detail-bento">
+
               {/* Stats card */}
-              <div className="detail-card">
+              <div className="detail-card detail-bento-stats">
                 <div className="detail-stat">
                   <div className="detail-stat-value-row">
-                    <img src="/star.svg" alt="" style={{ width: 16, height: 16 }} />
-                    <span className="detail-stat-value">{movie.vote_average?.toFixed(1) || 'N/A'}</span>
+                    <img src="/star.svg" alt="" style={{ width: 15, height: 15 }} />
+                    <span className="detail-stat-value">
+                      {movie.vote_average?.toFixed(1) || 'N/A'}
+                    </span>
                   </div>
                   <span className="detail-stat-label">Rating</span>
                 </div>
@@ -143,7 +147,9 @@ export default function MovieDetails() {
                 )}
                 {movie.original_language && (
                   <div className="detail-stat">
-                    <span className="detail-stat-value">{movie.original_language.toUpperCase()}</span>
+                    <span className="detail-stat-value">
+                      {movie.original_language.toUpperCase()}
+                    </span>
                     <span className="detail-stat-label">Language</span>
                   </div>
                 )}
@@ -151,8 +157,20 @@ export default function MovieDetails() {
 
               {/* Overview card */}
               {movie.overview && (
-                <div className="detail-card detail-card-overview">
+                <div className="detail-card detail-bento-overview">
                   <p className="detail-overview-text">{movie.overview}</p>
+                </div>
+              )}
+
+              {/* Trailer — spans both columns */}
+              {trailer && (
+                <div className="detail-bento-trailer">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
+                    title={trailer.name || 'Trailer'}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
                 </div>
               )}
             </div>
@@ -168,29 +186,13 @@ export default function MovieDetails() {
           </div>
         </div>
 
-        {/* ── Trailer ── */}
-        {trailer && (
-          <section className="detail-section">
-            <h2>Trailer</h2>
-            <div className="trailer-wrap">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
-                title={trailer.name || 'Trailer'}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="trailer-iframe"
-              />
-            </div>
-          </section>
-        )}
-
         {/* ── Cast ── */}
         {cast.length > 0 && (
           <section className="detail-section">
             <h2>Cast</h2>
-            <div className="cast-grid">
+            <div className="people-grid">
               {cast.map((member) => (
-                <Link key={member.id} to={`/person/${member.id}`} className="cast-card">
+                <Link key={member.id} to={`/person/${member.id}`} className="person-thumb">
                   <img
                     src={
                       member.profile_path
@@ -211,12 +213,12 @@ export default function MovieDetails() {
         {crew.length > 0 && (
           <section className="detail-section">
             <h2>Crew</h2>
-            <div className="crew-grid">
+            <div className="people-grid">
               {crew.map((member) => (
                 <Link
                   key={`${member.id}-${member.job}`}
                   to={`/person/${member.id}`}
-                  className="crew-card"
+                  className="person-thumb"
                 >
                   <img
                     src={

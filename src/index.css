@@ -439,9 +439,9 @@
     width: 180px;
   }
 
-  @media (min-width: 480px) { .movie-details-poster { width: 210px; } }
-  @media (min-width: 768px) { .movie-details-poster { width: 240px; } }
-  @media (min-width: 1024px) { .movie-details-poster { width: 280px; } }
+  @media (min-width: 480px) { .movie-details-poster { width: 220px; } }
+  @media (min-width: 768px) { .movie-details-poster { width: 260px; } }
+  @media (min-width: 1024px) { .movie-details-poster { width: 320px; } }
 
   .movie-details-poster img {
     width: 100%;
@@ -525,30 +525,62 @@
     color: rgba(168, 181, 219, 0.8);
   }
 
-  /* ── Detail two-card row ── */
-  .detail-cards-row {
-    display: flex;
+  /* ── Detail bento grid ── */
+  .detail-bento {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    grid-template-areas:
+      "stats overview"
+      "trailer trailer";
     gap: 12px;
-    flex-wrap: wrap;
     margin-top: 4px;
   }
 
-  .detail-card {
-    background: rgba(171, 139, 255, 0.07);
-    border: 1px solid rgba(171, 139, 255, 0.15);
-    border-radius: 16px;
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    flex-shrink: 0;
-    min-width: 130px;
+  @media (max-width: 479px) {
+    .detail-bento {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "stats"
+        "overview"
+        "trailer";
+    }
   }
 
-  .detail-card-overview {
-    flex: 1;
-    min-width: 180px;
-    justify-content: center;
+  .detail-bento-stats {
+    grid-area: stats;
+    align-self: start;
+  }
+
+  .detail-bento-overview {
+    grid-area: overview;
+    align-self: start;
+  }
+
+  .detail-bento-trailer {
+    grid-area: trailer;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid rgba(206, 206, 251, 0.08);
+  }
+
+  .detail-bento-trailer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .detail-card {
+    background: rgba(10, 8, 24, 0.92);
+    border: 1px solid rgba(171, 139, 255, 0.18);
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    backdrop-filter: blur(8px);
   }
 
   .detail-stat {
@@ -557,48 +589,80 @@
     gap: 3px;
   }
 
-  .detail-stat img {
-    width: 16px;
-    height: 16px;
-    margin-bottom: 1px;
+  .detail-stat-value-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .detail-stat-value {
     color: white;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     line-height: 1.2;
   }
 
   .detail-stat-label {
-    color: rgba(168, 181, 219, 0.45);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
+    color: rgba(168, 181, 219, 0.4);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    margin-top: 1px;
   }
 
   .detail-overview-text {
-    font-size: 13.5px;
-    line-height: 1.75;
-    color: rgba(168, 181, 219, 0.8);
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(206, 206, 251, 0.82);
   }
 
-  /* ── Cast ── */
-  .cast-section {
-    @apply mt-14 pb-4;
+  /* ── Shared section spacing ── */
+  .detail-section {
+    margin-top: 52px;
   }
 
-  .cast-grid {
-    @apply mt-5 grid gap-3;
+  /* ── Trailer ── */
+  .trailer-wrap {
+    margin-top: 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    max-width: 860px;
+    background: #000;
+    border: 1px solid rgba(206, 206, 251, 0.08);
+  }
+
+  .trailer-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* ── People grid (cast + crew) ── */
+  .people-grid {
+    margin-top: 20px;
+    display: grid;
+    gap: 12px;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 
-  .cast-card {
-    @apply flex flex-col items-center text-center;
+  .person-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
   }
 
-  .cast-card img {
+  .person-thumb:hover {
+    opacity: 0.8;
+  }
+
+  .person-thumb img {
     width: 100%;
     aspect-ratio: 2/3;
     object-fit: cover;
@@ -833,16 +897,6 @@
     overflow: hidden;
   }
 
-  /* Cast cards are now links — reset link styles */
-  a.cast-card {
-    text-decoration: none;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
-  a.cast-card:hover {
-    opacity: 0.8;
-  }
 }
 
 @utility text-gradient {
