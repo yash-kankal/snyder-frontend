@@ -102,7 +102,7 @@
   }
 
   .movie-card {
-    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10;
+    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10 cursor-pointer transition-transform duration-200 hover:scale-[1.02] hover:shadow-light-100/20;
 
     & img {
       @apply rounded-lg h-auto w-full;
@@ -158,5 +158,98 @@
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@layer components {
+  .movie-backdrop {
+    @apply fixed inset-0 bg-cover bg-center bg-no-repeat z-0;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+    filter: blur(2px) brightness(0.3);
+  }
+
+  .back-link {
+    @apply text-light-200 text-sm font-medium hover:text-white transition-colors mt-6 inline-block;
+  }
+
+  .movie-details-layout {
+    @apply mt-8 flex flex-col md:flex-row gap-8 lg:gap-12;
+  }
+
+  .movie-details-poster {
+    @apply flex-shrink-0 w-full md:w-64 lg:w-72;
+
+    & img {
+      @apply w-full rounded-2xl shadow-2xl;
+    }
+  }
+
+  .movie-details-info {
+    @apply flex flex-col gap-4 flex-1;
+  }
+
+  .tagline {
+    @apply text-light-200 text-base italic opacity-80;
+  }
+
+  .meta-row {
+    @apply flex flex-wrap items-center gap-2 mt-1;
+  }
+
+  .rating-badge {
+    @apply flex items-center gap-1 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-3 py-1;
+
+    & span {
+      @apply text-yellow-300 font-bold text-sm;
+    }
+  }
+
+  .meta-chip {
+    @apply text-gray-100 text-sm bg-light-100/5 border border-light-100/10 rounded-full px-3 py-1;
+  }
+
+  .genres {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .genre-tag {
+    @apply text-xs font-medium text-light-100 bg-light-100/10 rounded-full px-3 py-1;
+  }
+
+  .overview-section {
+    @apply mt-2;
+
+    & h3 {
+      @apply text-white font-semibold text-lg mb-2;
+    }
+
+    & p {
+      @apply text-light-200 text-sm leading-relaxed;
+    }
+  }
+
+  .cast-section {
+    @apply mt-12 pb-16;
+  }
+
+  .cast-grid {
+    @apply mt-5 grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4;
+  }
+
+  .cast-card {
+    @apply flex flex-col items-center text-center;
+
+    & img {
+      @apply w-full aspect-square object-cover object-top rounded-xl mb-2;
+    }
+  }
+
+  .cast-name {
+    @apply text-white text-xs font-semibold line-clamp-1;
+  }
+
+  .cast-character {
+    @apply text-gray-100 text-xs line-clamp-1 mt-0.5;
   }
 }

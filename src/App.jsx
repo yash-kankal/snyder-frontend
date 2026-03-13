@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import './App.css'
 import Search from './components/Search'
 import Spinner from './components/Spinner';
 import Card from './components/Card';
 import Pagination from './components/Pagination';
+import MovieDetails from './pages/MovieDetails';
 import { useDebounce } from "react-use"
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
@@ -17,7 +19,7 @@ const API_OPTIONS = {
   }
 }
 
-function App() {
+function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [movieList, setMovieList] = useState([]);
@@ -53,8 +55,6 @@ function App() {
 
       const data = await response.json();
 
-      // TMDB style payload
-      // { page, results, total_pages, total_results }
       if (!data || !Array.isArray(data.results)) {
         setErrorMessage("No results found.");
         setMovieList([]);
@@ -64,7 +64,6 @@ function App() {
       }
 
       setMovieList(data.results || []);
-      // TMDB limits total_pages to 500 for most endpoints
       setTotalPages(Math.max(1, Math.min(data.total_pages || 1, 500)));
       setTotalResults(data.total_results || 0);
     } catch (error) {
@@ -78,12 +77,10 @@ function App() {
     }
   };
 
-  // Reset to page 1 whenever the search term changes
   useEffect(() => {
     setPage(1);
   }, [debouncedSearchTerm]);
 
-  // Fetch when page or debounced search term changes
   useEffect(() => {
     fetchMovies(debouncedSearchTerm, page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,7 +91,7 @@ function App() {
       <div className='pattern' />
       <div className='wrapper'>
         <header className='mt-[5px]'>
-          <h1><span className='text-white'>Snyder.</span></h1>
+          <h1><span className='text-white'>Snyder Movies.</span></h1>
           <img src='/hero-img (2).png' alt="Hero" />
           <h1 className='text-gradient'>Find Movies You'll Enjoy Without the Hassle</h1>
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
@@ -124,7 +121,6 @@ function App() {
                 ))}
               </ul>
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className='mt-6'>
                   <Pagination
@@ -141,6 +137,15 @@ function App() {
         </section>
       </div>
     </main>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/movie/:id" element={<MovieDetails apiOptions={API_OPTIONS} apiBaseUrl={API_BASE_URL} />} />
+    </Routes>
   );
 }
 
