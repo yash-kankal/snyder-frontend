@@ -471,6 +471,14 @@
     display: block;
   }
 
+  .detail-title-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
   .detail-title {
     font-size: clamp(1.75rem, 4vw, 3rem);
     font-weight: 800;
@@ -478,8 +486,56 @@
     line-height: 1.15;
     letter-spacing: -0.02em;
     text-align: left;
-    margin: 0 0 4px 0;
+    margin: 0;
     max-width: none;
+    flex-shrink: 0;
+  }
+
+  /* ─────────────────────────────
+     PERSON PAGE
+  ───────────────────────────── */
+  .person-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  @media (min-width: 640px) {
+    .person-layout {
+      flex-direction: row;
+      gap: 40px;
+      align-items: flex-start;
+    }
+  }
+
+  .person-photo {
+    flex-shrink: 0;
+    width: 200px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 640px) {
+    .person-photo { margin: 0; width: 220px; }
+  }
+
+  @media (min-width: 1024px) {
+    .person-photo { width: 260px; }
+  }
+
+  .person-photo img {
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(206, 206, 251, 0.08);
+    display: block;
+  }
+
+  .person-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
   }
 
   .tagline {
@@ -887,9 +943,6 @@
     box-shadow: 0 12px 44px rgba(109, 63, 212, 0.55);
   }
 
-  /* ─────────────────────────────
-     PERSON PAGE
-  ───────────────────────────── */
   .all-movies-grid {
     @apply grid grid-cols-2 gap-5 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5;
   }
@@ -898,10 +951,6 @@
     font-size: 14px;
     line-height: 1.75;
     color: rgba(168, 181, 219, 0.8);
-    display: -webkit-box;
-    -webkit-line-clamp: 8;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
 }

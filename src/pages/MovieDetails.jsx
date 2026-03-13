@@ -106,8 +106,17 @@ export default function MovieDetails() {
 
       <div className="wrapper detail-wrapper">
 
-        {/* Title */}
-        <h1 className="detail-title">{movie.title}</h1>
+        {/* Title + genres */}
+        <div className="detail-title-row">
+          <h1 className="detail-title">{movie.title}</h1>
+          {movie.genres?.length > 0 && (
+            <div className="genres">
+              {movie.genres.map((g) => (
+                <span key={g.id} className="genre-tag">{g.name}</span>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* ── Hero grid: [poster] [stats] [overview]
                          [  ·   ] [   trailer      ] ── */}
@@ -151,13 +160,6 @@ export default function MovieDetails() {
               </div>
             )}
 
-            {movie.genres?.length > 0 && (
-              <div className="detail-stat-genres">
-                {movie.genres.map((g) => (
-                  <span key={g.id} className="genre-tag">{g.name}</span>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Overview card — stretches to poster height, scrolls if needed */}

@@ -60,10 +60,10 @@ export default function PersonPage() {
 
   return (
     <main>
-      <div className="wrapper">
-        <div className="movie-details-layout">
+      <div className="wrapper" style={{ paddingTop: '7rem' }}>
+        <div className="person-layout">
           {/* Photo */}
-          <div className="movie-details-poster">
+          <div className="person-photo">
             <img
               src={
                 person.profile_path
@@ -75,7 +75,7 @@ export default function PersonPage() {
           </div>
 
           {/* Info */}
-          <div className="movie-details-info">
+          <div className="person-info">
             <h1 className="detail-title">{person.name}</h1>
 
             <div className="meta-row">
@@ -91,17 +91,14 @@ export default function PersonPage() {
             </div>
 
             {person.biography && (
-              <div className="overview-section">
-                <h3>Biography</h3>
-                <p className="person-bio">{person.biography}</p>
-              </div>
+              <p className="person-bio">{person.biography}</p>
             )}
           </div>
         </div>
 
         {/* Filmography */}
         {movies.length > 0 && (
-          <section className="cast-section">
+          <section className="detail-section">
             <h2>Known For</h2>
             <ul className="all-movies-grid mt-5">
               {movies.map((movie) => (
