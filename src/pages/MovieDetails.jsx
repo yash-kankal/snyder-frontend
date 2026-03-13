@@ -3,36 +3,71 @@ import { useParams, Link } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 
+const KEY_CREW_JOBS = [
+  'Director', 'Producer', 'Executive Producer',
+  'Screenplay', 'Story', 'Director of Photography',
+  'Original Music Composer',
+]
+
 export default function MovieDetails() {
   const { id } = useParams()
-  const [movie, setMovie] = useState(null)
-  const [cast, setCast] = useState([])
+  const [movie, setMovie]     = useState(null)
+  const [cast, setCast]       = useState([])
+  const [crew, setCrew]       = useState([])
+  const [trailer, setTrailer] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError]     = useState('')
 
-  // Always start at the top when opening a movie
   useEffect(() => { window.scrollTo(0, 0) }, [id])
 
   useEffect(() => {
-    const fetchDetails = async () => {
+    const fetchAll = async () => {
       setIsLoading(true)
       setError('')
       try {
-        const [detailsRes, creditsRes] = await Promise.all([
+        const [detailsRes, creditsRes, videosRes] = await Promise.all([
           fetch(`${API_BASE_URL}/movie/${id}`, API_OPTIONS),
           fetch(`${API_BASE_URL}/movie/${id}/credits`, API_OPTIONS),
+          fetch(`${API_BASE_URL}/movie/${id}/videos`, API_OPTIONS),
         ])
         if (!detailsRes.ok || !creditsRes.ok) throw new Error('Failed to fetch')
-        const [details, credits] = await Promise.all([detailsRes.json(), creditsRes.json()])
+
+        const [details, credits, videos] = await Promise.all([
+          detailsRes.json(),
+          creditsRes.json(),
+          videosRes.json(),
+        ])
+
         setMovie(details)
         setCast(credits.cast?.slice(0, 15) || [])
+
+        // Key crew — deduplicated by person+job
+        const seen = new Set()
+        const filteredCrew = (credits.crew || [])
+          .filter(c => KEY_CREW_JOBS.includes(c.job))
+          .filter(c => {
+            const key = `${c.id}-${c.job}`
+            if (seen.has(key)) return false
+            seen.add(key)
+            return true
+          })
+          .slice(0, 12)
+        setCrew(filteredCrew)
+
+        // First official YouTube trailer
+        const tr = (videos.results || []).find(
+          v => v.site === 'YouTube' && v.type === 'Trailer' && v.official
+        ) || (videos.results || []).find(
+          v => v.site === 'YouTube' && v.type === 'Trailer'
+        )
+        setTrailer(tr || null)
       } catch {
         setError('Could not load movie details.')
       } finally {
         setIsLoading(false)
       }
     }
-    fetchDetails()
+    fetchAll()
   }, [id])
 
   if (isLoading) {
@@ -72,6 +107,8 @@ export default function MovieDetails() {
       )}
 
       <div className="wrapper detail-wrapper">
+
+        {/* ── Hero row: poster + info ── */}
         <div className="movie-details-layout">
           <div className="movie-details-poster">
             <img src={posterUrl} alt={movie.title} />
@@ -80,14 +117,18 @@ export default function MovieDetails() {
           <div className="movie-details-info">
             <h1 className="detail-title">{movie.title}</h1>
 
+            {/* Two side-by-side cards */}
             <div className="detail-cards-row">
-              {/* Left card — stats */}
+              {/* Stats card */}
               <div className="detail-card">
                 <div className="detail-stat">
-                  <img src="/star.svg" alt="rating" className="size-4" />
-                  <span className="detail-stat-value">{movie.vote_average?.toFixed(1) || 'N/A'}</span>
+                  <div className="detail-stat-value-row">
+                    <img src="/star.svg" alt="" style={{ width: 16, height: 16 }} />
+                    <span className="detail-stat-value">{movie.vote_average?.toFixed(1) || 'N/A'}</span>
+                  </div>
                   <span className="detail-stat-label">Rating</span>
                 </div>
+
                 {movie.release_date && (
                   <div className="detail-stat">
                     <span className="detail-stat-value">{movie.release_date.split('-')[0]}</span>
@@ -108,27 +149,48 @@ export default function MovieDetails() {
                 )}
               </div>
 
-              {/* Right card — overview */}
+              {/* Overview card */}
               {movie.overview && (
                 <div className="detail-card detail-card-overview">
                   <p className="detail-overview-text">{movie.overview}</p>
                 </div>
               )}
             </div>
+
+            {/* Genres */}
+            {movie.genres?.length > 0 && (
+              <div className="genres">
+                {movie.genres.map((g) => (
+                  <span key={g.id} className="genre-tag">{g.name}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Cast — each card links to the actor's page */}
+        {/* ── Trailer ── */}
+        {trailer && (
+          <section className="detail-section">
+            <h2>Trailer</h2>
+            <div className="trailer-wrap">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
+                title={trailer.name || 'Trailer'}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="trailer-iframe"
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ── Cast ── */}
         {cast.length > 0 && (
-          <section className="cast-section">
+          <section className="detail-section">
             <h2>Cast</h2>
             <div className="cast-grid">
               {cast.map((member) => (
-                <Link
-                  key={member.id}
-                  to={`/person/${member.id}`}
-                  className="cast-card"
-                >
+                <Link key={member.id} to={`/person/${member.id}`} className="cast-card">
                   <img
                     src={
                       member.profile_path
@@ -144,6 +206,34 @@ export default function MovieDetails() {
             </div>
           </section>
         )}
+
+        {/* ── Crew ── */}
+        {crew.length > 0 && (
+          <section className="detail-section">
+            <h2>Crew</h2>
+            <div className="crew-grid">
+              {crew.map((member) => (
+                <Link
+                  key={`${member.id}-${member.job}`}
+                  to={`/person/${member.id}`}
+                  className="crew-card"
+                >
+                  <img
+                    src={
+                      member.profile_path
+                        ? `https://image.tmdb.org/t/p/w185/${member.profile_path}`
+                        : '/No-Poster.png'
+                    }
+                    alt={member.name}
+                  />
+                  <p className="cast-name">{member.name}</p>
+                  <p className="cast-character">{member.job}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
       </div>
     </main>
   )
