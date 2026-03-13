@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Spinner from '../components/Spinner'
+import { API_BASE_URL, API_OPTIONS } from '../config'
 
-function MovieDetails({ apiOptions, apiBaseUrl }) {
+function MovieDetails() {
   const { id } = useParams()
+  const apiOptions = API_OPTIONS
+  const apiBaseUrl = API_BASE_URL
   const [movie, setMovie] = useState(null)
   const [cast, setCast] = useState([])
   const [isLoading, setIsLoading] = useState(true)

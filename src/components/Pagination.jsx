@@ -1,68 +1,61 @@
-/* eslint-disable react/prop-types */
+function getPageNumbers(page, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1)
+  }
+  const set = new Set([1, totalPages])
+  for (let i = Math.max(2, page - 2); i <= Math.min(totalPages - 1, page + 2); i++) {
+    set.add(i)
+  }
+  const sorted = [...set].sort((a, b) => a - b)
+  const result = []
+  let prev = 0
+  for (const p of sorted) {
+    if (p - prev > 1) result.push('…')
+    result.push(p)
+    prev = p
+  }
+  return result
+}
+
 export default function Pagination({ page, totalPages, onPageChange }) {
-  const makePages = () => {
-    const pages = new Set([1, totalPages]);
-    for (let p = page - 2; p <= page + 2; p++) {
-      if (p >= 1 && p <= totalPages) pages.add(p);
-    }
-    return [...pages].sort((a, b) => a - b);
-  };
-
-  const pages = makePages();
-
-  const Button = ({ disabled, children, onClick, ariaLabel }) => (
-    <button
-      aria-label={ariaLabel}
-      disabled={disabled}
-      onClick={onClick}
-      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors
-        ${disabled
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
-      `}
-    >
-      {children}
-    </button>
-  );
+  const pages = getPageNumbers(page, totalPages)
 
   return (
-    <nav className="flex items-center justify-center gap-2 mt-4" aria-label="Pagination Navigation">
-      <Button
-        ariaLabel="Go to previous page"
-        disabled={page <= 1}
+    <div className="pagination">
+      <button
+        className="pagination-arrow"
         onClick={() => onPageChange(page - 1)}
+        disabled={page <= 1}
+        aria-label="Previous page"
       >
-        Prev
-      </Button>
+        ←
+      </button>
 
-      {pages.map((p, i) => {
-        const prev = pages[i - 1];
-        const showEllipsis = i > 0 && p - prev > 1;
-        return (
-          <span key={p} className="flex items-center">
-            {showEllipsis && <span className="px-2 select-none text-gray-400">…</span>}
+      <div className="pagination-pages">
+        {pages.map((p, i) =>
+          p === '…' ? (
+            <span key={`dots-${i}`} className="pagination-dots">···</span>
+          ) : (
             <button
-              aria-current={p === page ? "page" : undefined}
+              key={p}
+              className={`pagination-page${p === page ? ' active' : ''}`}
               onClick={() => onPageChange(p)}
-              className={`min-w-9 px-3 py-2 rounded-md text-sm font-medium transition-colors
-                ${p === page
-                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
-              `}
+              aria-current={p === page ? 'page' : undefined}
             >
               {p}
             </button>
-          </span>
-        );
-      })}
+          )
+        )}
+      </div>
 
-      <Button
-        ariaLabel="Go to next page"
-        disabled={page >= totalPages}
+      <button
+        className="pagination-arrow"
         onClick={() => onPageChange(page + 1)}
+        disabled={page >= totalPages}
+        aria-label="Next page"
       >
-        Next
-      </Button>
-    </nav>
-  );
+        →
+      </button>
+    </div>
+  )
 }

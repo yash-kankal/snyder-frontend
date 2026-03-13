@@ -1,48 +1,48 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useSearchParams } from 'react-router-dom'
 import './App.css'
 import Navbar from './components/Navbar'
-import Search from './components/Search'
 import Spinner from './components/Spinner'
 import Card from './components/Card'
 import Pagination from './components/Pagination'
 import MovieDetails from './pages/MovieDetails'
-import { useDebounce } from 'react-use'
+import { API_BASE_URL, API_OPTIONS } from './config'
 
-const API_BASE_URL = 'https://api.themoviedb.org/3'
-const API_KEY = import.meta.env.VITE_TMDB_API_TOKEN
+function getEndpoint(section, query, pageNum) {
+  if (query?.trim()) {
+    return `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${pageNum}`
+  }
+  if (section === 'trending') return `${API_BASE_URL}/trending/movie/week?page=${pageNum}`
+  if (section === 'new') return `${API_BASE_URL}/movie/now_playing?page=${pageNum}`
+  return `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${pageNum}`
+}
 
-const API_OPTIONS = {
-  method: 'GET',
-  headers: {
-    accept: 'application/json',
-    Authorization: 'Bearer ' + API_KEY,
-  },
+function getSectionTitle(section, query) {
+  if (query) return `Results for "${query}"`
+  if (section === 'trending') return 'Trending This Week'
+  if (section === 'new') return 'Now Playing'
+  return 'Popular Movies'
 }
 
 function Home() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
+  const [searchParams] = useSearchParams()
+  const section = searchParams.get('section') || 'popular'
+  const urlQuery = searchParams.get('q') || ''
+
   const [movieList, setMovieList] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalResults, setTotalResults] = useState(0)
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
 
-  useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
-
-  const fetchMovies = async (query = '', pageNum = 1) => {
+  const fetchMovies = async (sec, query, pageNum) => {
     setIsLoading(true)
     setErrorMessage('')
     try {
-      const base =
-        query?.trim()
-          ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-          : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`
-      const response = await fetch(`${base}&page=${pageNum}`, API_OPTIONS)
-      if (!response.ok) throw new Error('Failed to fetch movies')
-      const data = await response.json()
+      const res = await fetch(getEndpoint(sec, query, pageNum), API_OPTIONS)
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
       if (!data || !Array.isArray(data.results)) {
         setErrorMessage('No results found.')
         setMovieList([])
@@ -53,8 +53,8 @@ function Home() {
       setMovieList(data.results)
       setTotalPages(Math.max(1, Math.min(data.total_pages || 1, 500)))
       setTotalResults(data.total_results || 0)
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
       setErrorMessage('Error fetching movies. Please try again later.')
       setMovieList([])
       setTotalPages(1)
@@ -64,28 +64,25 @@ function Home() {
     }
   }
 
-  useEffect(() => { setPage(1) }, [debouncedSearchTerm])
+  // Reset to page 1 when filter/query changes
+  useEffect(() => { setPage(1) }, [section, urlQuery])
+
   useEffect(() => {
-    fetchMovies(debouncedSearchTerm, page)
+    window.scrollTo({ top: 0 })
+    fetchMovies(section, urlQuery, page)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchTerm, page])
+  }, [section, urlQuery, page])
 
   return (
     <main>
       <div className="pattern" />
       <div className="wrapper">
-        <header>
-          <img src="/hero-img (2).png" alt="Hero" />
-          <h1 className="text-gradient">Find Movies You'll Enjoy Without the Hassle</h1>
-          <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        </header>
-
         <section className="all-movies">
           <div className="section-header">
-            <h2>{debouncedSearchTerm ? `Results for "${debouncedSearchTerm}"` : 'Popular Movies'}</h2>
+            <h2>{getSectionTitle(section, urlQuery)}</h2>
             {totalResults > 0 && (
               <span className="results-count">
-                {totalResults.toLocaleString()} results · page {page}/{totalPages}
+                {totalResults.toLocaleString()} results · pg {page}/{totalPages}
               </span>
             )}
           </div>
@@ -93,7 +90,7 @@ function Home() {
           {isLoading ? (
             <Spinner />
           ) : errorMessage ? (
-            <p className="text-red-400 text-sm">{errorMessage}</p>
+            <p className="error-msg">{errorMessage}</p>
           ) : (
             <>
               <ul>
@@ -102,7 +99,7 @@ function Home() {
                 ))}
               </ul>
               {totalPages > 1 && (
-                <div className="mt-6">
+                <div className="mt-10">
                   <Pagination
                     page={page}
                     totalPages={totalPages}
@@ -124,10 +121,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route
-          path="/movie/:id"
-          element={<MovieDetails apiOptions={API_OPTIONS} apiBaseUrl={API_BASE_URL} />}
-        />
+        <Route path="/movie/:id" element={<MovieDetails />} />
       </Routes>
     </>
   )
