@@ -435,8 +435,8 @@
     display: grid;
     grid-template-columns: 200px 145px 1fr;
     grid-template-areas:
-      "poster stats overview"
-      ". trailer trailer";
+      "poster stats trailer"
+      "overview overview overview";
     gap: 14px;
     margin-top: 20px;
     align-items: stretch;
@@ -448,8 +448,8 @@
       grid-template-areas:
         "poster"
         "stats"
-        "overview"
-        "trailer";
+        "trailer"
+        "overview";
     }
   }
 
@@ -551,7 +551,6 @@
 
   .detail-bento-overview {
     grid-area: overview;
-    overflow-y: auto;
   }
 
   .detail-bento-trailer {
