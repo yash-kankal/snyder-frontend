@@ -78,7 +78,7 @@ export default function LandingPage() {
           Snyder<span className="text-gradient">Movies</span>
         </h1>
         <p className="landing-tagline">
-          Ratings, cast &amp; details for every movie you love —<br className="hidden sm:block" /> all in one minimal place.
+          A lightweight alternative to IMDb — no clutter, no ads. Just movies.
         </p>
         <Link to="/browse?section=trending" className="landing-cta">
           Start Discovering →
