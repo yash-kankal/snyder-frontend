@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 
 function MovieDetails({ apiOptions, apiBaseUrl }) {
@@ -7,43 +7,34 @@ function MovieDetails({ apiOptions, apiBaseUrl }) {
   const [movie, setMovie] = useState(null)
   const [cast, setCast] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchDetails = async () => {
       setIsLoading(true)
-      setError("")
+      setError('')
       try {
         const [detailsRes, creditsRes] = await Promise.all([
           fetch(`${apiBaseUrl}/movie/${id}`, apiOptions),
           fetch(`${apiBaseUrl}/movie/${id}/credits`, apiOptions),
         ])
-
-        if (!detailsRes.ok || !creditsRes.ok) throw new Error("Failed to fetch")
-
-        const [details, credits] = await Promise.all([
-          detailsRes.json(),
-          creditsRes.json(),
-        ])
-
+        if (!detailsRes.ok || !creditsRes.ok) throw new Error('Failed to fetch')
+        const [details, credits] = await Promise.all([detailsRes.json(), creditsRes.json()])
         setMovie(details)
-        setCast(credits.cast?.slice(0, 10) || [])
+        setCast(credits.cast?.slice(0, 12) || [])
       } catch {
-        setError("Could not load movie details.")
+        setError('Could not load movie details.')
       } finally {
         setIsLoading(false)
       }
     }
-
     fetchDetails()
   }, [id, apiBaseUrl, apiOptions])
 
   if (isLoading) {
     return (
-      <main>
-        <div className="wrapper flex items-center justify-center min-h-screen">
-          <Spinner />
-        </div>
+      <main className="flex items-center justify-center min-h-screen">
+        <Spinner />
       </main>
     )
   }
@@ -52,8 +43,7 @@ function MovieDetails({ apiOptions, apiBaseUrl }) {
     return (
       <main>
         <div className="wrapper">
-          <p className="text-red-500 mt-10">{error || "Movie not found."}</p>
-          <Link to="/" className="back-link mt-4 inline-block">← Back to Home</Link>
+          <p className="text-red-400 text-sm mt-10">{error || 'Movie not found.'}</p>
         </div>
       </main>
     )
@@ -61,7 +51,7 @@ function MovieDetails({ apiOptions, apiBaseUrl }) {
 
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
-    : "/No-Poster.png"
+    : '/No-Poster.png'
 
   const backdropUrl = movie.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280/${movie.backdrop_path}`
@@ -72,40 +62,33 @@ function MovieDetails({ apiOptions, apiBaseUrl }) {
     : null
 
   return (
-    <main>
-      {/* Backdrop */}
+    <main className="relative">
+      {/* Full-page blurred backdrop */}
       {backdropUrl && (
-        <div
-          className="movie-backdrop"
-          style={{ backgroundImage: `url(${backdropUrl})` }}
-        />
+        <div className="movie-backdrop" style={{ backgroundImage: `url(${backdropUrl})` }} />
       )}
 
-      <div className="wrapper">
-        <Link to="/" className="back-link">← Snyder Movies</Link>
-
+      <div className="wrapper detail-wrapper">
+        {/* Hero: poster + info side by side */}
         <div className="movie-details-layout">
-          {/* Poster */}
           <div className="movie-details-poster">
             <img src={posterUrl} alt={movie.title} />
           </div>
 
-          {/* Info */}
           <div className="movie-details-info">
-            <h1 className="!text-left !text-4xl sm:!text-5xl">{movie.title}</h1>
+            <h1 className="detail-title">{movie.title}</h1>
 
             {movie.tagline && (
               <p className="tagline">"{movie.tagline}"</p>
             )}
 
-            {/* Meta row */}
             <div className="meta-row">
               <div className="rating-badge">
                 <img src="/star.svg" alt="rating" className="size-4" />
-                <span>{movie.vote_average?.toFixed(1) || "N/A"}</span>
+                <span>{movie.vote_average?.toFixed(1) || 'N/A'}</span>
               </div>
               {movie.release_date && (
-                <span className="meta-chip">{movie.release_date.split("-")[0]}</span>
+                <span className="meta-chip">{movie.release_date.split('-')[0]}</span>
               )}
               {runtime && <span className="meta-chip">{runtime}</span>}
               {movie.original_language && (
@@ -113,7 +96,6 @@ function MovieDetails({ apiOptions, apiBaseUrl }) {
               )}
             </div>
 
-            {/* Genres */}
             {movie.genres?.length > 0 && (
               <div className="genres">
                 {movie.genres.map((g) => (
@@ -122,7 +104,6 @@ function MovieDetails({ apiOptions, apiBaseUrl }) {
               </div>
             )}
 
-            {/* Overview */}
             {movie.overview && (
               <div className="overview-section">
                 <h3>Overview</h3>
@@ -143,7 +124,7 @@ function MovieDetails({ apiOptions, apiBaseUrl }) {
                     src={
                       member.profile_path
                         ? `https://image.tmdb.org/t/p/w185/${member.profile_path}`
-                        : "/No-Poster.png"
+                        : '/No-Poster.png'
                     }
                     alt={member.name}
                   />
