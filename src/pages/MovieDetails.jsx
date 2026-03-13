@@ -106,85 +106,80 @@ export default function MovieDetails() {
 
       <div className="wrapper detail-wrapper">
 
-        {/* ── Hero row ── */}
-        <div className="movie-details-layout">
+        {/* Title */}
+        <h1 className="detail-title">{movie.title}</h1>
+
+        {/* ── Hero grid: [poster] [stats] [overview]
+                         [  ·   ] [   trailer      ] ── */}
+        <div className="detail-hero">
 
           {/* Poster */}
-          <div className="movie-details-poster">
+          <div className="detail-hero-poster">
             <img src={posterUrl} alt={movie.title} />
           </div>
 
-          {/* Info + bento grid */}
-          <div className="movie-details-info">
-            <h1 className="detail-title">{movie.title}</h1>
-
-            {/* Bento: stats | overview, trailer spans full width below */}
-            <div className="detail-bento">
-
-              {/* Stats card */}
-              <div className="detail-card detail-bento-stats">
-                <div className="detail-stat">
-                  <div className="detail-stat-value-row">
-                    <img src="/star.svg" alt="" style={{ width: 15, height: 15 }} />
-                    <span className="detail-stat-value">
-                      {movie.vote_average?.toFixed(1) || 'N/A'}
-                    </span>
-                  </div>
-                  <span className="detail-stat-label">Rating</span>
-                </div>
-
-                {movie.release_date && (
-                  <div className="detail-stat">
-                    <span className="detail-stat-value">{movie.release_date.split('-')[0]}</span>
-                    <span className="detail-stat-label">Year</span>
-                  </div>
-                )}
-                {runtime && (
-                  <div className="detail-stat">
-                    <span className="detail-stat-value">{runtime}</span>
-                    <span className="detail-stat-label">Runtime</span>
-                  </div>
-                )}
-                {movie.original_language && (
-                  <div className="detail-stat">
-                    <span className="detail-stat-value">
-                      {movie.original_language.toUpperCase()}
-                    </span>
-                    <span className="detail-stat-label">Language</span>
-                  </div>
-                )}
+          {/* Stats card — stretches to poster height */}
+          <div className="detail-card detail-bento-stats">
+            <div className="detail-stat">
+              <div className="detail-stat-value-row">
+                <img src="/star.svg" alt="" style={{ width: 15, height: 15 }} />
+                <span className="detail-stat-value">
+                  {movie.vote_average?.toFixed(1) || 'N/A'}
+                </span>
               </div>
-
-              {/* Overview card */}
-              {movie.overview && (
-                <div className="detail-card detail-bento-overview">
-                  <p className="detail-overview-text">{movie.overview}</p>
-                </div>
-              )}
-
-              {/* Trailer — spans both columns */}
-              {trailer && (
-                <div className="detail-bento-trailer">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
-                    title={trailer.name || 'Trailer'}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              )}
+              <span className="detail-stat-label">Rating</span>
             </div>
 
-            {/* Genres */}
-            {movie.genres?.length > 0 && (
-              <div className="genres">
-                {movie.genres.map((g) => (
-                  <span key={g.id} className="genre-tag">{g.name}</span>
-                ))}
+            {movie.release_date && (
+              <div className="detail-stat">
+                <span className="detail-stat-value">{movie.release_date.split('-')[0]}</span>
+                <span className="detail-stat-label">Year</span>
+              </div>
+            )}
+            {runtime && (
+              <div className="detail-stat">
+                <span className="detail-stat-value">{runtime}</span>
+                <span className="detail-stat-label">Runtime</span>
+              </div>
+            )}
+            {movie.original_language && (
+              <div className="detail-stat">
+                <span className="detail-stat-value">
+                  {movie.original_language.toUpperCase()}
+                </span>
+                <span className="detail-stat-label">Language</span>
               </div>
             )}
           </div>
+
+          {/* Overview card — stretches to poster height, scrolls if needed */}
+          {movie.overview && (
+            <div className="detail-card detail-bento-overview">
+              <p className="detail-overview-text">{movie.overview}</p>
+            </div>
+          )}
+
+          {/* Trailer — sits under stats + overview */}
+          {trailer && (
+            <div className="detail-bento-trailer">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
+                title={trailer.name || 'Trailer'}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
         </div>
+
+        {/* Genres */}
+        {movie.genres?.length > 0 && (
+          <div className="genres" style={{ marginTop: 16 }}>
+            {movie.genres.map((g) => (
+              <span key={g.id} className="genre-tag">{g.name}</span>
+            ))}
+          </div>
+        )}
 
         {/* ── Cast ── */}
         {cast.length > 0 && (

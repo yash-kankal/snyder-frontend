@@ -430,28 +430,45 @@
     @apply pt-28 pb-20;
   }
 
-  .movie-details-layout {
-    @apply flex flex-col md:flex-row gap-8 lg:gap-14;
+  /* ── Hero grid layout ── */
+  .detail-hero {
+    display: grid;
+    grid-template-columns: 200px 145px 1fr;
+    grid-template-areas:
+      "poster stats overview"
+      ". trailer trailer";
+    gap: 14px;
+    margin-top: 20px;
+    align-items: stretch;
   }
 
-  .movie-details-poster {
-    @apply flex-shrink-0 mx-auto md:mx-0;
-    width: 180px;
+  @media (max-width: 767px) {
+    .detail-hero {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "poster"
+        "stats"
+        "overview"
+        "trailer";
+    }
   }
 
-  @media (min-width: 480px) { .movie-details-poster { width: 220px; } }
-  @media (min-width: 768px) { .movie-details-poster { width: 260px; } }
-  @media (min-width: 1024px) { .movie-details-poster { width: 320px; } }
+  @media (min-width: 1024px) {
+    .detail-hero {
+      grid-template-columns: 260px 155px 1fr;
+    }
+  }
 
-  .movie-details-poster img {
+  .detail-hero-poster {
+    grid-area: poster;
+  }
+
+  .detail-hero-poster img {
     width: 100%;
     border-radius: 16px;
     box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
     border: 1px solid rgba(206, 206, 251, 0.08);
-  }
-
-  .movie-details-info {
-    @apply flex flex-col gap-4 flex-1 md:pt-2;
+    display: block;
   }
 
   .detail-title {
@@ -461,7 +478,7 @@
     line-height: 1.15;
     letter-spacing: -0.02em;
     text-align: left;
-    margin: 0;
+    margin: 0 0 4px 0;
     max-width: none;
   }
 
@@ -525,35 +542,16 @@
     color: rgba(168, 181, 219, 0.8);
   }
 
-  /* ── Detail bento grid ── */
-  .detail-bento {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    grid-template-areas:
-      "stats overview"
-      "trailer trailer";
-    gap: 12px;
-    margin-top: 4px;
-  }
-
-  @media (max-width: 479px) {
-    .detail-bento {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "stats"
-        "overview"
-        "trailer";
-    }
-  }
-
+  /* ── Bento cards within detail-hero ── */
   .detail-bento-stats {
     grid-area: stats;
-    align-self: start;
+    justify-content: space-between;
+    gap: 0;
   }
 
   .detail-bento-overview {
     grid-area: overview;
-    align-self: start;
+    overflow-y: auto;
   }
 
   .detail-bento-trailer {
