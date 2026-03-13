@@ -80,36 +80,41 @@ export default function MovieDetails() {
           <div className="movie-details-info">
             <h1 className="detail-title">{movie.title}</h1>
 
-            {movie.tagline && <p className="tagline">"{movie.tagline}"</p>}
-
-            <div className="meta-row">
-              <div className="rating-badge">
-                <img src="/star.svg" alt="rating" className="size-4" />
-                <span>{movie.vote_average?.toFixed(1) || 'N/A'}</span>
+            <div className="detail-cards-row">
+              {/* Left card — stats */}
+              <div className="detail-card">
+                <div className="detail-stat">
+                  <img src="/star.svg" alt="rating" className="size-4" />
+                  <span className="detail-stat-value">{movie.vote_average?.toFixed(1) || 'N/A'}</span>
+                  <span className="detail-stat-label">Rating</span>
+                </div>
+                {movie.release_date && (
+                  <div className="detail-stat">
+                    <span className="detail-stat-value">{movie.release_date.split('-')[0]}</span>
+                    <span className="detail-stat-label">Year</span>
+                  </div>
+                )}
+                {runtime && (
+                  <div className="detail-stat">
+                    <span className="detail-stat-value">{runtime}</span>
+                    <span className="detail-stat-label">Runtime</span>
+                  </div>
+                )}
+                {movie.original_language && (
+                  <div className="detail-stat">
+                    <span className="detail-stat-value">{movie.original_language.toUpperCase()}</span>
+                    <span className="detail-stat-label">Language</span>
+                  </div>
+                )}
               </div>
-              {movie.release_date && (
-                <span className="meta-chip">{movie.release_date.split('-')[0]}</span>
-              )}
-              {runtime && <span className="meta-chip">{runtime}</span>}
-              {movie.original_language && (
-                <span className="meta-chip">{movie.original_language.toUpperCase()}</span>
+
+              {/* Right card — overview */}
+              {movie.overview && (
+                <div className="detail-card detail-card-overview">
+                  <p className="detail-overview-text">{movie.overview}</p>
+                </div>
               )}
             </div>
-
-            {movie.genres?.length > 0 && (
-              <div className="genres">
-                {movie.genres.map((g) => (
-                  <span key={g.id} className="genre-tag">{g.name}</span>
-                ))}
-              </div>
-            )}
-
-            {movie.overview && (
-              <div className="overview-section">
-                <h3>Overview</h3>
-                <p>{movie.overview}</p>
-              </div>
-            )}
           </div>
         </div>
 
