@@ -5,7 +5,9 @@ import Navbar from './components/Navbar'
 import Spinner from './components/Spinner'
 import Card from './components/Card'
 import Pagination from './components/Pagination'
+import LandingPage from './pages/LandingPage'
 import MovieDetails from './pages/MovieDetails'
+import PersonPage from './pages/PersonPage'
 import { API_BASE_URL, API_OPTIONS } from './config'
 
 function getEndpoint(section, query, pageNum) {
@@ -24,7 +26,7 @@ function getSectionTitle(section, query) {
   return 'Popular Movies'
 }
 
-function Home() {
+function Browse() {
   const [searchParams] = useSearchParams()
   const section = searchParams.get('section') || 'popular'
   const urlQuery = searchParams.get('q') || ''
@@ -64,7 +66,6 @@ function Home() {
     }
   }
 
-  // Reset to page 1 when filter/query changes
   useEffect(() => { setPage(1) }, [section, urlQuery])
 
   useEffect(() => {
@@ -120,8 +121,10 @@ function App() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/browse" element={<Browse />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
+        <Route path="/person/:id" element={<PersonPage />} />
       </Routes>
     </>
   )

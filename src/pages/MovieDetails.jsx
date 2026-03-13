@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 
-function MovieDetails() {
+export default function MovieDetails() {
   const { id } = useParams()
-  const apiOptions = API_OPTIONS
-  const apiBaseUrl = API_BASE_URL
   const [movie, setMovie] = useState(null)
   const [cast, setCast] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Always start at the top when opening a movie
+  useEffect(() => { window.scrollTo(0, 0) }, [id])
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -18,13 +19,13 @@ function MovieDetails() {
       setError('')
       try {
         const [detailsRes, creditsRes] = await Promise.all([
-          fetch(`${apiBaseUrl}/movie/${id}`, apiOptions),
-          fetch(`${apiBaseUrl}/movie/${id}/credits`, apiOptions),
+          fetch(`${API_BASE_URL}/movie/${id}`, API_OPTIONS),
+          fetch(`${API_BASE_URL}/movie/${id}/credits`, API_OPTIONS),
         ])
         if (!detailsRes.ok || !creditsRes.ok) throw new Error('Failed to fetch')
         const [details, credits] = await Promise.all([detailsRes.json(), creditsRes.json()])
         setMovie(details)
-        setCast(credits.cast?.slice(0, 12) || [])
+        setCast(credits.cast?.slice(0, 15) || [])
       } catch {
         setError('Could not load movie details.')
       } finally {
@@ -32,7 +33,7 @@ function MovieDetails() {
       }
     }
     fetchDetails()
-  }, [id, apiBaseUrl, apiOptions])
+  }, [id])
 
   if (isLoading) {
     return (
@@ -46,7 +47,7 @@ function MovieDetails() {
     return (
       <main>
         <div className="wrapper">
-          <p className="text-red-400 text-sm mt-10">{error || 'Movie not found.'}</p>
+          <p className="error-msg mt-10">{error || 'Movie not found.'}</p>
         </div>
       </main>
     )
@@ -66,13 +67,11 @@ function MovieDetails() {
 
   return (
     <main className="relative">
-      {/* Full-page blurred backdrop */}
       {backdropUrl && (
         <div className="movie-backdrop" style={{ backgroundImage: `url(${backdropUrl})` }} />
       )}
 
       <div className="wrapper detail-wrapper">
-        {/* Hero: poster + info side by side */}
         <div className="movie-details-layout">
           <div className="movie-details-poster">
             <img src={posterUrl} alt={movie.title} />
@@ -81,9 +80,7 @@ function MovieDetails() {
           <div className="movie-details-info">
             <h1 className="detail-title">{movie.title}</h1>
 
-            {movie.tagline && (
-              <p className="tagline">"{movie.tagline}"</p>
-            )}
+            {movie.tagline && <p className="tagline">"{movie.tagline}"</p>}
 
             <div className="meta-row">
               <div className="rating-badge">
@@ -116,13 +113,17 @@ function MovieDetails() {
           </div>
         </div>
 
-        {/* Cast */}
+        {/* Cast — each card links to the actor's page */}
         {cast.length > 0 && (
           <section className="cast-section">
             <h2>Cast</h2>
             <div className="cast-grid">
               {cast.map((member) => (
-                <div key={member.id} className="cast-card">
+                <Link
+                  key={member.id}
+                  to={`/person/${member.id}`}
+                  className="cast-card"
+                >
                   <img
                     src={
                       member.profile_path
@@ -133,7 +134,7 @@ function MovieDetails() {
                   />
                   <p className="cast-name">{member.name}</p>
                   <p className="cast-character">{member.character}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </section>
@@ -142,5 +143,3 @@ function MovieDetails() {
     </main>
   )
 }
-
-export default MovieDetails

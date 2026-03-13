@@ -590,6 +590,200 @@
   .trending ul li img {
     @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
   }
+
+  /* ─────────────────────────────
+     LANDING PAGE
+  ───────────────────────────── */
+  .landing {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #030014;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Purple ambient glow */
+  .landing-glow {
+    position: absolute;
+    width: 640px;
+    height: 640px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(100, 60, 220, 0.28) 0%, transparent 68%);
+    filter: blur(24px);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Poster side panels */
+  .landing-side {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: none;
+    gap: 8px;
+    padding: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .landing-side { display: flex; }
+  }
+
+  .landing-left { left: 0; }
+  .landing-right { right: 0; }
+
+  /* Poster columns */
+  .poster-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+    animation: poster-drift-up 16s ease-in-out infinite;
+  }
+
+  .poster-col.col-offset {
+    margin-top: -110px;
+    animation: poster-drift-down 20s ease-in-out infinite;
+    animation-delay: -6s;
+  }
+
+  @keyframes poster-drift-up {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-24px); }
+  }
+
+  @keyframes poster-drift-down {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(24px); }
+  }
+
+  .poster-thumb {
+    width: 150px;
+    height: 225px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* Gradient fade overlays on poster sides */
+  .poster-fade-edge {
+    position: absolute;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .poster-fade-edge.top {
+    top: 0; left: 0; right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, #030014, transparent);
+  }
+
+  .poster-fade-edge.bottom {
+    bottom: 0; left: 0; right: 0;
+    height: 100px;
+    background: linear-gradient(to top, #030014, transparent);
+  }
+
+  .poster-fade-edge.right {
+    top: 0; right: 0; bottom: 0;
+    width: 100px;
+    background: linear-gradient(to right, transparent, #030014);
+  }
+
+  .poster-fade-edge.left {
+    top: 0; left: 0; bottom: 0;
+    width: 100px;
+    background: linear-gradient(to left, transparent, #030014);
+  }
+
+  /* Center content */
+  .landing-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 80px 24px 32px;
+    max-width: 560px;
+    gap: 20px;
+  }
+
+  .landing-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(171, 139, 255, 0.75);
+  }
+
+  .landing-logo {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .landing-tagline {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(168, 181, 219, 0.7);
+    max-width: 380px;
+  }
+
+  .landing-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 30px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #6d3fd4, #AB8BFF);
+    color: white;
+    font-weight: 700;
+    font-size: 14.5px;
+    text-decoration: none;
+    box-shadow: 0 8px 36px rgba(109, 63, 212, 0.45);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    margin-top: 4px;
+  }
+
+  .landing-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 44px rgba(109, 63, 212, 0.55);
+  }
+
+  /* ─────────────────────────────
+     PERSON PAGE
+  ───────────────────────────── */
+  .all-movies-grid {
+    @apply grid grid-cols-2 gap-5 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5;
+  }
+
+  .person-bio {
+    font-size: 14px;
+    line-height: 1.75;
+    color: rgba(168, 181, 219, 0.8);
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Cast cards are now links — reset link styles */
+  a.cast-card {
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  a.cast-card:hover {
+    opacity: 0.8;
+  }
 }
 
 @utility text-gradient {

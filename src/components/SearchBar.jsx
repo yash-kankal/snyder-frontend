@@ -16,7 +16,7 @@ export default function SearchBar() {
   const containerRef = useRef(null)
   const inputRef = useRef(null)
 
-  // Sync input value when URL q param changes (e.g. navigating back)
+  // Sync input when URL q param changes (back/forward nav)
   useEffect(() => {
     setQuery(searchParams.get('q') || '')
     setShowDropdown(false)
@@ -24,7 +24,7 @@ export default function SearchBar() {
 
   useDebounce(() => setDebouncedQuery(query), 300, [query])
 
-  // Fetch dropdown suggestions
+  // Fetch suggestions
   useEffect(() => {
     if (!debouncedQuery.trim()) {
       setResults([])
@@ -63,7 +63,7 @@ export default function SearchBar() {
 
   const goToSearch = (q) => {
     setShowDropdown(false)
-    navigate(`/?q=${encodeURIComponent(q.trim())}`)
+    navigate(`/browse?q=${encodeURIComponent(q.trim())}`)
   }
 
   const handleKeyDown = (e) => {
@@ -77,16 +77,8 @@ export default function SearchBar() {
     if (!val.trim()) setShowDropdown(false)
   }
 
-  const handleClear = () => {
-    setQuery('')
-    setResults([])
-    setShowDropdown(false)
-    inputRef.current?.focus()
-  }
-
   return (
     <div ref={containerRef} className="search-bar-wrap">
-      {/* Input */}
       <div className="search-bar-input">
         <img src="/Vector.svg" alt="" className="search-bar-icon" />
         <input
@@ -100,13 +92,16 @@ export default function SearchBar() {
           autoComplete="off"
         />
         {query && (
-          <button className="search-bar-clear" onClick={handleClear} aria-label="Clear">
+          <button
+            className="search-bar-clear"
+            onClick={() => { setQuery(''); setResults([]); setShowDropdown(false) }}
+            aria-label="Clear"
+          >
             ×
           </button>
         )}
       </div>
 
-      {/* Dropdown */}
       {showDropdown && (
         <div className="search-dropdown">
           {loading ? (
@@ -131,9 +126,7 @@ export default function SearchBar() {
                     <p className="search-dropdown-title">{movie.title}</p>
                     <p className="search-dropdown-meta">
                       {movie.release_date?.split('-')[0] || '—'}
-                      {' · '}
-                      <img src="/star.svg" alt="" style={{ display: 'inline', width: 10, height: 10, marginBottom: 1 }} />
-                      {' '}
+                      {' · ★ '}
                       {movie.vote_average?.toFixed(1) || 'N/A'}
                     </p>
                   </div>
