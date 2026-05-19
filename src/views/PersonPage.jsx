@@ -40,6 +40,7 @@ export default function PersonPage({ routeId } = {}) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [photoLoaded, setPhotoLoaded] = useState(false)
+  const [wikipediaUrl, setWikipediaUrl] = useState(null)
 
   // Lock page scroll on desktop only
   useEffect(() => {
@@ -68,6 +69,20 @@ export default function PersonPage({ routeId } = {}) {
         )
         if (cancelled) return
         setPerson(data)
+
+        // Fetch Wikipedia URL from Wikidata if available
+        const wikidataId = data.external_ids?.wikidata_id
+        if (wikidataId) {
+          fetch(
+            `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${wikidataId}&props=sitelinks&sitelinkfilter=enwiki&format=json&origin=*`
+          )
+            .then(r => r.json())
+            .then(wd => {
+              const title = wd?.entities?.[wikidataId]?.sitelinks?.enwiki?.title
+              if (title && !cancelled) setWikipediaUrl(`https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`)
+            })
+            .catch(() => {})
+        }
 
         const cast = (data.combined_credits?.cast || []).map(item => ({
           ...item,
@@ -254,6 +269,12 @@ export default function PersonPage({ routeId } = {}) {
                   X
                 </a>
               )}
+              {wikipediaUrl && (
+                <a href={wikipediaUrl} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--wiki" title="Wikipedia">
+                  <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 1.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17zm-1.08 3.5L8.5 12.64l-1.17-4.64H5.75l1.92 6.5h1.5l1.75-4.5 1.75 4.5h1.5l1.92-6.5h-1.58L13.5 12.64 11.08 7z"/></svg>
+                  Wiki
+                </a>
+              )}
             </div>
             <div className="mob-person-stats">
               {birthday && (
@@ -357,6 +378,12 @@ export default function PersonPage({ routeId } = {}) {
                   <a href={`https://twitter.com/${person.external_ids.twitter_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--x" title="X / Twitter">
                     <svg viewBox="0 0 24 24" fill="#ffffff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     X
+                  </a>
+                )}
+                {wikipediaUrl && (
+                  <a href={wikipediaUrl} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--wiki" title="Wikipedia">
+                    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 1.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17zm-1.08 3.5L8.5 12.64l-1.17-4.64H5.75l1.92 6.5h1.5l1.75-4.5 1.75 4.5h1.5l1.92-6.5h-1.58L13.5 12.64 11.08 7z"/></svg>
+                    Wiki
                   </a>
                 )}
               </div>

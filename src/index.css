@@ -1341,6 +1341,10 @@
   .person-ext-link--x svg  { color: #fff; }
   .person-ext-link--x:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: #fff; }
 
+  .person-ext-link--wiki      { border-color: rgba(255,255,255,0.15); }
+  .person-ext-link--wiki svg  { color: #fff; }
+  .person-ext-link--wiki:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: #fff; }
+
   .detail-title-row {
     display: flex;
     align-items: flex-start;
