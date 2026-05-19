@@ -431,8 +431,8 @@ export default function PersonPage({ routeId } = {}) {
 
                 {activeTab === 'Known For' && movies.length > 0 && (
                   <div className="person-known-for-scroll">
-                    {sortedKnownFor.map(movie => (
-                      <Card key={`${movie.mediaType}-${movie.id}`} movie={movie} mediaType={movie.mediaType} />
+                    {sortedKnownFor.map((movie, i) => (
+                      <Card key={`${movie.mediaType}-${movie.id}-${i}`} movie={movie} mediaType={movie.mediaType} />
                     ))}
                   </div>
                 )}
@@ -443,8 +443,8 @@ export default function PersonPage({ routeId } = {}) {
                 {activeTab === 'Films' && (
                   filmMovies.length > 0
                     ? <div className="person-filmography-grid">
-                        {sortedFilms.map(movie => (
-                          <Card key={`movie-${movie.id}`} movie={movie} mediaType="movie" />
+                        {sortedFilms.map((movie, i) => (
+                          <Card key={`movie-${movie.id}-${i}`} movie={movie} mediaType="movie" />
                         ))}
                       </div>
                     : <p className="person-bio" style={{ opacity: 0.5 }}>No film credits found.</p>
@@ -453,8 +453,8 @@ export default function PersonPage({ routeId } = {}) {
                 {activeTab === 'TV Shows' && (
                   filmTV.length > 0
                     ? <div className="person-filmography-grid">
-                        {sortedTV.map(show => (
-                          <Card key={`tv-${show.id}`} movie={show} mediaType="tv" />
+                        {sortedTV.map((show, i) => (
+                          <Card key={`tv-${show.id}-${i}`} movie={show} mediaType="tv" />
                         ))}
                       </div>
                     : <p className="person-bio" style={{ opacity: 0.5 }}>No TV credits found.</p>
@@ -463,8 +463,8 @@ export default function PersonPage({ routeId } = {}) {
                 {activeTab === 'Directed' && (
                   filmDirected.length > 0
                     ? <div className="person-filmography-grid">
-                        {sortedDirected.map(item => (
-                          <Card key={`${item.mediaType}-${item.id}`} movie={item} mediaType={item.mediaType} />
+                        {sortedDirected.map((item, i) => (
+                          <Card key={`${item.mediaType}-${item.id}-${i}`} movie={item} mediaType={item.mediaType} />
                         ))}
                       </div>
                     : <p className="person-bio" style={{ opacity: 0.5 }}>No directing credits found.</p>

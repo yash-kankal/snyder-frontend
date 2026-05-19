@@ -1125,6 +1125,7 @@
   .detail-info-right .detail-hero-watch {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 8px;
   }
 
@@ -1238,6 +1239,8 @@
     text-transform: uppercase;
     color: rgba(171, 139, 255, 0.7);
     margin-bottom: 8px;
+    text-align: center;
+    width: 100%;
   }
   .go-to-reviews-btn {
     display: flex;
@@ -1288,6 +1291,12 @@
     box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
     border: 1px solid rgba(206, 206, 251, 0.08);
     display: block;
+    cursor: zoom-in;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .detail-hero-poster img:hover {
+    transform: scale(1.025);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
   }
 
   /* ── Detail title row — title wraps, buttons stay pinned right ── */
@@ -3447,6 +3456,7 @@
     border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.6);
     z-index: 5;
+    cursor: zoom-in;
   }
 
   .mob-hero-text {
@@ -3610,10 +3620,27 @@
   }
 
   .mob-provider-logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
     object-fit: cover;
+  }
+
+  .mob-providers--rent {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .mob-providers--rent .mob-providers {
+    margin-top: 0;
+  }
+  .mob-rent-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(206, 206, 251, 0.45);
+    margin-bottom: 2px;
   }
 
   .mob-stat-theatres {
@@ -6111,6 +6138,40 @@
   .vg-scroll   { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
   .vg-card     { width: 240px; }
   .vg-play svg { width: 34px; height: 34px; }
+}
+
+/* ─────────────────────────────────────────
+   IMAGE GALLERY
+───────────────────────────────────────── */
+.ig-scroll {
+  /* use same vg-scroll base, just tweak gaps */
+  gap: 8px;
+}
+
+.ig-card {
+  flex-shrink: 0;
+  width: 300px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(206, 206, 251, 0.06);
+  cursor: zoom-in;
+}
+
+.ig-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.22s ease;
+}
+
+@media (hover: hover) {
+  .ig-card:hover img { transform: scale(1.04); }
+}
+
+@media (max-width: 767px) {
+  .ig-card { width: 220px; }
 }
 
 /* ─────────────────────────────────────────
@@ -9194,4 +9255,59 @@
   .shb-posters {
     display: none;
   }
+}
+
+/* ── Poster Lightbox ── */
+.poster-lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: lightbox-fade-in 0.2s ease;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+@keyframes lightbox-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.poster-lightbox-img {
+  max-height: 90vh;
+  max-width: min(500px, 90vw);
+  width: auto;
+  border-radius: 16px;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.9);
+  animation: lightbox-scale-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes lightbox-scale-in {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.poster-lightbox-close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  z-index: 10000;
+}
+.poster-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.poster-lightbox-close svg {
+  width: 18px;
+  height: 18px;
 }

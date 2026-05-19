@@ -17,6 +17,7 @@ import PlaylistPicker from '../components/PlaylistPicker'
 import VideoGallery, { sortVideos } from '../components/VideoGallery'
 import AuthModal from '../components/AuthModal'
 import CommentsSection from '../components/CommentsSection'
+import ImageGallery from '../components/ImageGallery'
 
 const LANG_NAMES = { en:'English', hi:'Hindi', ja:'Japanese', ko:'Korean', zh:'Chinese', fr:'French', es:'Spanish', de:'German', it:'Italian', pt:'Portuguese', ru:'Russian', ar:'Arabic', ta:'Tamil', te:'Telugu', ml:'Malayalam', bn:'Bengali', th:'Thai', tr:'Turkish', id:'Indonesian', nl:'Dutch', pl:'Polish', sv:'Swedish', da:'Danish', no:'Norwegian', fi:'Finnish', he:'Hebrew', vi:'Vietnamese', fa:'Persian', pa:'Punjabi', mr:'Marathi', gu:'Gujarati', kn:'Kannada' }
 
@@ -92,7 +93,21 @@ function WatchProviderList({ providers, title, isInTheatres, compact = false }) 
 
   // Fallback: rent/buy options
   const rentBuy = [...new Map([...rent, ...buy].map(p => [p.provider_id, p])).values()]
-  if (!compact && rentBuy.length > 0) {
+  if (rentBuy.length > 0) {
+    if (compact) {
+      return (
+        <div className="mob-providers--rent">
+          <span className="mob-rent-label">Rent / Buy</span>
+          <div className="mob-providers">
+            {rentBuy.slice(0, 4).map(p => (
+              <a key={p.provider_id} href={getProviderUrl(p, title)} target="_blank" rel="noopener noreferrer" title={p.provider_name}>
+                <img src={`https://image.tmdb.org/t/p/w45/${p.logo_path}`} alt={p.provider_name} className="mob-provider-logo" />
+              </a>
+            ))}
+          </div>
+        </div>
+      )
+    }
     return (
       <>
         <p className="watch-rent-label">Available to Rent / Buy</p>
@@ -184,6 +199,7 @@ export default function MovieDetails({ routeId } = {}) {
   const [crew, setCrew]       = useState([])
   const [trailer, setTrailer]         = useState(null)
   const [videos, setVideos]           = useState([])
+  const [images, setImages]           = useState([])
   const [certification, setCert]      = useState(null)
   const [watchProviders, setWatch]    = useState(null)
   const [isLoading, setIsLoading]     = useState(true)
@@ -191,6 +207,7 @@ export default function MovieDetails({ routeId } = {}) {
   const [recs, setRecs]               = useState([])
   const [tmdbReviews, setTmdbReviews] = useState([])
   const recsRef                       = useRef(null)
+  const [showPoster, setShowPoster]       = useState(false)
   const [showPicker, setShowPicker]       = useState(false)
   const [pickerRect, setPickerRect]       = useState(null)
   const [showAuth, setShowAuth]           = useState(false)
@@ -251,7 +268,7 @@ export default function MovieDetails({ routeId } = {}) {
       try {
         // One request via append_to_response — 5× fewer round trips.
         const data = await cachedFetch(
-          `${API_BASE_URL}/movie/${id}?append_to_response=credits,videos,release_dates,watch/providers,recommendations,reviews`,
+          `${API_BASE_URL}/movie/${id}?append_to_response=credits,videos,images,release_dates,watch/providers,recommendations,reviews&include_image_language=en,null`,
           API_OPTIONS, TTL.detail
         )
         if (cancelled) return
@@ -294,6 +311,10 @@ export default function MovieDetails({ routeId } = {}) {
           || null
         setTrailer(tr)
         setVideos(allVids)
+        const backdrops = (data.images?.backdrops || [])
+          .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))
+          .slice(0, 30)
+        setImages(backdrops)
         setRecs((data.recommendations?.results || []).filter(r => r.poster_path).slice(0, 10))
         setTmdbReviews(data.reviews?.results || [])
       } catch {
@@ -397,7 +418,7 @@ export default function MovieDetails({ routeId } = {}) {
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </a>
           ) : null}
-          <img src={posterUrl} alt={movie.title} className="mob-hero-poster" />
+          <img src={posterUrl} alt={movie.title} className="mob-hero-poster" onClick={() => setShowPoster(true)} />
         </div>
         <div className="mob-hero-info">
           <div className="mob-hero-text">
@@ -555,7 +576,7 @@ export default function MovieDetails({ routeId } = {}) {
         <div className="detail-hero">
 
           {/* Poster */}
-          <div className="detail-hero-poster">
+          <div className="detail-hero-poster" onClick={() => setShowPoster(true)}>
             <img src={posterUrl} alt={movie.title} />
           </div>
 
@@ -690,6 +711,7 @@ export default function MovieDetails({ routeId } = {}) {
 
         {/* ── Video Gallery ── */}
         <VideoGallery videos={videos} />
+        <ImageGallery images={images} />
 
         {/* ── Cast ── */}
         {cast.length > 0 && (
@@ -810,6 +832,27 @@ export default function MovieDetails({ routeId } = {}) {
 
       </div>
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      {showPoster && (
+        <div
+          style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,0.88)', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}
+          onClick={() => setShowPoster(false)}
+        >
+          <button
+            onClick={e => { e.stopPropagation(); setShowPoster(false) }}
+            style={{ position:'absolute', top:'16px', right:'16px', width:'40px', height:'40px', borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', zIndex:10000 }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="18" height="18">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
+          <img
+            src={`https://image.tmdb.org/t/p/w780/${movie.poster_path}`}
+            alt={movie.title}
+            style={{ maxHeight:'90vh', maxWidth:'min(500px,90vw)', borderRadius:'16px', boxShadow:'0 40px 120px rgba(0,0,0,0.9)' }}
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </main>
   )
 }
