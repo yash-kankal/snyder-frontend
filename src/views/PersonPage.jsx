@@ -63,7 +63,7 @@ export default function PersonPage({ routeId } = {}) {
       try {
         // Fetch both movie + TV credits in one request
         const data = await cachedFetch(
-          `${API_BASE_URL}/person/${id}?append_to_response=combined_credits`,
+          `${API_BASE_URL}/person/${id}?append_to_response=combined_credits,external_ids`,
           API_OPTIONS, TTL.detail
         )
         if (cancelled) return
@@ -235,6 +235,26 @@ export default function PersonPage({ routeId } = {}) {
             {person.known_for_department && (
               <span className="mob-person-dept">{person.known_for_department}</span>
             )}
+            <div className="person-external-links" style={{ marginTop: '6px' }}>
+              {person.external_ids?.imdb_id && (
+                <a href={`https://www.imdb.com/name/${person.external_ids.imdb_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--imdb" title="IMDb">
+                  <svg viewBox="0 0 24 24" fill="#F5C518"><path d="M14.31 9.588v.005c-.077-.048-.227-.07-.42-.07v4.815c.27 0 .44-.06.5-.18.062-.12.095-.405.095-.857v-3c0-.33-.012-.547-.04-.652a.344.344 0 0 0-.135-.061zM12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM7.562 15.108H6.055V8.892h1.507v6.216zm4.16 0H10.35v-.504c-.176.2-.36.348-.553.447a1.376 1.376 0 0 1-.625.145c-.272 0-.47-.075-.592-.227-.12-.152-.182-.395-.182-.73V9.773h1.354v4.076c0 .163.016.27.048.325.033.055.09.082.17.082.1 0 .196-.05.286-.148.09-.098.135-.204.135-.315V9.773h1.33v5.335zm4.43-.616c0 .31-.027.543-.08.697a.686.686 0 0 1-.27.37c-.128.09-.28.147-.456.172a3.851 3.851 0 0 1-.57.038h-1.73V8.892h1.57c.368 0 .64.022.814.067.175.044.32.124.435.238.114.113.19.248.228.403.038.155.058.41.058.763v3.13z"/></svg>
+                  IMDb
+                </a>
+              )}
+              {person.external_ids?.instagram_id && (
+                <a href={`https://www.instagram.com/${person.external_ids.instagram_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--ig" title="Instagram">
+                  <svg viewBox="0 0 24 24" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                  Instagram
+                </a>
+              )}
+              {person.external_ids?.twitter_id && (
+                <a href={`https://twitter.com/${person.external_ids.twitter_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--x" title="X / Twitter">
+                  <svg viewBox="0 0 24 24" fill="#ffffff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  X
+                </a>
+              )}
+            </div>
             <div className="mob-person-stats">
               {birthday && (
                 <div className="mob-person-stat">
@@ -318,7 +338,29 @@ export default function PersonPage({ routeId } = {}) {
 
           {/* Right column: name pinned, inner content scrolls */}
           <div className="person-info-card detail-card">
-            <h1 className="detail-title">{person.name}</h1>
+            <div className="person-name-row desktop-only-name-row">
+              <h1 className="detail-title">{person.name}</h1>
+              <div className="person-external-links">
+                {person.external_ids?.imdb_id && (
+                  <a href={`https://www.imdb.com/name/${person.external_ids.imdb_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--imdb" title="IMDb">
+                    <svg viewBox="0 0 24 24" fill="#F5C518"><path d="M14.31 9.588v.005c-.077-.048-.227-.07-.42-.07v4.815c.27 0 .44-.06.5-.18.062-.12.095-.405.095-.857v-3c0-.33-.012-.547-.04-.652a.344.344 0 0 0-.135-.061zM12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM7.562 15.108H6.055V8.892h1.507v6.216zm4.16 0H10.35v-.504c-.176.2-.36.348-.553.447a1.376 1.376 0 0 1-.625.145c-.272 0-.47-.075-.592-.227-.12-.152-.182-.395-.182-.73V9.773h1.354v4.076c0 .163.016.27.048.325.033.055.09.082.17.082.1 0 .196-.05.286-.148.09-.098.135-.204.135-.315V9.773h1.33v5.335zm4.43-.616c0 .31-.027.543-.08.697a.686.686 0 0 1-.27.37c-.128.09-.28.147-.456.172a3.851 3.851 0 0 1-.57.038h-1.73V8.892h1.57c.368 0 .64.022.814.067.175.044.32.124.435.238.114.113.19.248.228.403.038.155.058.41.058.763v3.13z"/></svg>
+                    IMDb
+                  </a>
+                )}
+                {person.external_ids?.instagram_id && (
+                  <a href={`https://www.instagram.com/${person.external_ids.instagram_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--ig" title="Instagram">
+                    <svg viewBox="0 0 24 24" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                    Instagram
+                  </a>
+                )}
+                {person.external_ids?.twitter_id && (
+                  <a href={`https://twitter.com/${person.external_ids.twitter_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--x" title="X / Twitter">
+                    <svg viewBox="0 0 24 24" fill="#ffffff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    X
+                  </a>
+                )}
+              </div>
+            </div>
 
             {/* Only this inner div scrolls */}
             <div className="person-info-scroll">

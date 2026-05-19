@@ -1291,6 +1291,56 @@
   }
 
   /* ── Detail title row — title wraps, buttons stay pinned right ── */
+  .person-name-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .person-external-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .person-ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(206,206,251,0.15);
+    background: rgba(206,206,251,0.05);
+    color: rgba(206,206,251,0.7);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .person-ext-link:hover {
+    background: rgba(206,206,251,0.12);
+    border-color: rgba(206,206,251,0.3);
+    color: #fff;
+  }
+  .person-ext-link svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+  .person-ext-link--imdb      { border-color: rgba(245,197,24,0.25); }
+  .person-ext-link--imdb svg  { color: #F5C518; }
+  .person-ext-link--imdb:hover { background: rgba(245,197,24,0.1); border-color: rgba(245,197,24,0.45); color: #F5C518; }
+
+  .person-ext-link--ig      { border-color: rgba(225,48,108,0.25); }
+  .person-ext-link--ig svg  { color: #E1306C; }
+  .person-ext-link--ig:hover { background: rgba(225,48,108,0.1); border-color: rgba(225,48,108,0.45); color: #E1306C; }
+
+  .person-ext-link--x      { border-color: rgba(255,255,255,0.15); }
+  .person-ext-link--x svg  { color: #fff; }
+  .person-ext-link--x:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: #fff; }
+
   .detail-title-row {
     display: flex;
     align-items: flex-start;
@@ -3726,8 +3776,20 @@
     border-radius: 16px !important;
     padding: 18px 16px !important;
   }
-  /* Hide the desktop name (now shown in mob-person-header) */
-  .person-info-card .detail-title { display: none !important; }
+  /* Hide the entire desktop name+links row (both shown in mob-person-header) */
+  .desktop-only-name-row { display: none !important; }
+
+  /* Bigger link pills for mobile */
+  .mob-person-header .person-ext-link {
+    padding: 7px 14px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+    gap: 7px !important;
+  }
+  .mob-person-header .person-ext-link svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
 
   .person-info-scroll {
     overflow: visible !important;
