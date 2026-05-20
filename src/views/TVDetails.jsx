@@ -153,8 +153,6 @@ function EpTooltip({ text, x, y }) {
 
 // True on real touch/mobile devices — hover events fire unreliably on touch
 const IS_HOVER_DEVICE = typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
-// Static initial desktop check — avoids mounting two CuedUpRating instances
-const IS_DESKTOP_INIT = typeof window !== 'undefined' && window.matchMedia('(min-width: 1200px)').matches
 
 // ── Seasons panel ─────────────────────────────────────────────────────────────
 function SeasonsPanel({ showId, seasons }) {
@@ -381,11 +379,12 @@ export default function TVDetails({ routeId } = {}) {
   const { id: paramId } = useParams() || {}
   const id = routeId || paramId
   const { user } = useAuth()
-  const [isDesktop, setIsDesktop] = useState(IS_DESKTOP_INIT)
+  const [isDesktop, setIsDesktop] = useState(false)
   const [show, setShow]               = useState(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1200px)')
+    setIsDesktop(mq.matches)
     const handler = (e) => setIsDesktop(e.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)

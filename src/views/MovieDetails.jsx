@@ -173,17 +173,15 @@ function PeopleCarousel({ title, people, renderCard }) {
   )
 }
 
-// Static check — avoids mounting two CuedUpRating instances (one will always be CSS-hidden)
-const IS_DESKTOP = typeof window !== 'undefined' && window.matchMedia('(min-width: 1200px)').matches
-
 export default function MovieDetails({ routeId } = {}) {
   const { id: paramId } = useParams() || {}
   const id = routeId || paramId
   const { user } = useAuth()
-  const [isDesktop, setIsDesktop] = useState(IS_DESKTOP)
+  const [isDesktop, setIsDesktop] = useState(false)
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1200px)')
+    setIsDesktop(mq.matches)
     const handler = (e) => setIsDesktop(e.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)

@@ -44,7 +44,7 @@ export default function PersonPage({ routeId } = {}) {
 
   // Lock page scroll on desktop only
   useEffect(() => {
-    if (window.innerWidth < 768) return
+    if (typeof window === 'undefined' || window.innerWidth < 768) return
     const html = document.documentElement
     const body = document.body
     html.style.overflow = 'hidden'
