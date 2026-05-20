@@ -102,6 +102,12 @@ function getUpcomingDateRange() {
   return { today, future }
 }
 
+function getNowPlayingDateRange() {
+  const today = new Date().toISOString().split('T')[0]
+  const past  = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  return { past, today }
+}
+
 // ── Coming Soon reminder helpers (localStorage — logged-out fallback) ─────────
 const CS_REMINDERS_KEY = 'cuedup_reminders'
 function getLsReminders() {
@@ -183,10 +189,11 @@ function getEndpoint(section, query, pageNum, ratingSort, provider, genre, tab, 
   }
 
   if (tab === 'now_playing' && !isTV) {
-    return `${API_BASE_URL}/movie/now_playing?page=${pageNum}`
+    const { past, today } = getNowPlayingDateRange()
+    return `${API_BASE_URL}/discover/movie?page=${pageNum}&sort_by=popularity.desc&primary_release_date.gte=${past}&primary_release_date.lte=${today}`
   }
 
-  if (isTV) return `${API_BASE_URL}/discover/tv?sort_by=popularity.desc&page=${pageNum}`
+  if (isTV) return `${API_BASE_URL}/tv/popular?page=${pageNum}`
   return `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${pageNum}`
 }
 
