@@ -7,7 +7,7 @@ export default function CollectionsPage() {
 
   return (
     <main>
-      <div className="pattern" />
+
 
       {/* ── Page header ── */}
       <div className="anime-page-header">

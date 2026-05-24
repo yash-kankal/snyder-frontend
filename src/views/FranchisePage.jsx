@@ -13,6 +13,8 @@ import { usePageMeta } from '../lib/usePageMeta'
 import Spinner from '../components/Spinner'
 import AuthModal from '../components/AuthModal'
 
+const hideBrokenImage = (e) => { e.currentTarget.style.display = 'none' }
+
 const PICKER_W    = 220
 const GAP         = 6
 const MIN_ABOVE   = 240   // px of space needed above before we flip below
@@ -222,6 +224,7 @@ export default function FranchisePage({ routeId } = {}) {
             alt=""
             className="fran-hero-bg"
             aria-hidden="true"
+            onError={hideBrokenImage}
           />
         )}
         <div className="fran-hero-overlay" />

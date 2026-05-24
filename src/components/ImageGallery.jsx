@@ -1,9 +1,11 @@
 'use client'
 import { useRef, useCallback, useState, useEffect, memo } from 'react'
+import { createPortal } from 'react-dom'
 
 const ImageGallery = memo(function ImageGallery({ images }) {
   const scrollRef = useRef(null)
   const [lightboxIdx, setLightboxIdx] = useState(null)
+  const [mounted,     setMounted]     = useState(false)
 
   const scroll = useCallback((dir) => {
     scrollRef.current?.scrollBy({ left: dir * 620, behavior: 'smooth' })
@@ -13,6 +15,8 @@ const ImageGallery = memo(function ImageGallery({ images }) {
   const closeLightbox = useCallback(() => setLightboxIdx(null), [])
   const prev = useCallback((e) => { e.stopPropagation(); setLightboxIdx(i => Math.max(0, i - 1)) }, [])
   const next = useCallback((e) => { e.stopPropagation(); setLightboxIdx(i => Math.min(images.length - 1, i + 1)) }, [images.length])
+
+  useEffect(() => { setMounted(true) }, [])
 
   // Keyboard navigation
   useEffect(() => {
@@ -86,7 +90,7 @@ const ImageGallery = memo(function ImageGallery({ images }) {
         </div>
       </div>
 
-      {isOpen && (
+      {mounted && isOpen && createPortal(
         <div
           style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,0.92)', display:'flex', alignItems:'center', justifyContent:'center', padding:'60px 20px' }}
           onClick={closeLightbox}
@@ -132,7 +136,8 @@ const ImageGallery = memo(function ImageGallery({ images }) {
           <div style={{ position:'absolute', bottom:'16px', left:'50%', transform:'translateX(-50%)', color:'rgba(255,255,255,0.6)', fontSize:'13px', fontWeight:500, letterSpacing:'0.5px' }}>
             {lightboxIdx + 1} / {images.length}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

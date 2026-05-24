@@ -7413,137 +7413,96 @@
 /* Fixed 6-column grid — equal layout every page */
 .fr-fan-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 24px 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
 
-/* Card — no background, no border, just flex column */
+/* Card — block-level, rounded, clips the inner zoom */
 .fr-fan-card {
   text-decoration: none;
   color: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  display: block;
+  border-radius: 14px;
+  overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition: transform 0.28s cubic-bezier(.22,.68,0,1.2), box-shadow 0.28s;
 }
-.fr-fan-card:hover { transform: translateY(-5px); }
+.fr-fan-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.7);
+}
 
-/* Stack — THIS clips the fan so posters never bleed into adjacent cards */
+/* Backdrop wrapper — 16:9 landscape */
 .fr-fan-stack {
   position: relative;
   width: 100%;
-  height: 172px;
-  overflow: hidden;
-  border-radius: 12px;
+  aspect-ratio: 16 / 9;
 }
 
-/* All posters: centred horizontally, anchored at bottom */
+/* Backdrop image */
 .fr-fan-poster {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 95px;
-  height: 142px;
-  margin-left: -47px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-  transition: transform 0.2s, filter 0.2s;
+  display: block;
+  transition: transform 0.4s cubic-bezier(.22,.68,0,1.1);
 }
+.fr-fan-card:hover .fr-fan-poster { transform: scale(1.06); }
 
-/* Back poster — left, darker */
-.fr-fan-poster--back {
-  transform: rotate(-14deg);
-  transform-origin: bottom center;
-  z-index: 1;
-  filter: brightness(0.5);
-}
-/* Mid poster — right, mid brightness */
-.fr-fan-poster--mid {
-  transform: rotate(14deg);
-  transform-origin: bottom center;
-  z-index: 2;
-  filter: brightness(0.62);
-}
-/* Front poster — upright, full brightness */
-.fr-fan-poster--front {
-  width: 100px;
-  height: 150px;
-  margin-left: -50px;
-  z-index: 3;
-  border: 2px solid rgba(255,255,255,0.2);
-}
-
-/* Fan opens on hover */
-.fr-fan-card:hover .fr-fan-poster--back  { transform: rotate(-19deg) translateY(-6px); filter: brightness(0.65); }
-.fr-fan-card:hover .fr-fan-poster--mid   { transform: rotate(19deg)  translateY(-6px); filter: brightness(0.8);  }
-.fr-fan-card:hover .fr-fan-poster--front { transform: translateY(-6px); }
-
-/* Info below the stack */
+/* Gradient overlay — text sits above image */
 .fr-fan-info {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: flex-end;
+  padding: 16px 14px 13px;
   gap: 4px;
-  text-align: center;
-  width: 100%;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.92) 0%,
+    rgba(0,0,0,0.55) 40%,
+    transparent 70%
+  );
+  border-bottom: 3px solid var(--fan-color, #AB8BFF);
 }
+
 .fr-fan-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
-  color: white;
+  color: #fff;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
 }
 .fr-fan-tag {
-  font-size: 11px;
-  color: rgba(168,181,219,0.45);
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.6);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
 }
 
-/* Colour pip */
-.fr-fan-card::after {
-  content: '';
-  display: block;
-  width: 24px;
-  height: 3px;
-  border-radius: 99px;
-  background: var(--fan-color, #AB8BFF);
-  opacity: 0.75;
-  transition: width 0.2s, opacity 0.2s;
-}
-.fr-fan-card:hover::after { width: 40px; opacity: 1; }
-
-@media (max-width: 1024px) {
-  .fr-fan-grid { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1100px) {
+  .fr-fan-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
 }
 @media (max-width: 640px) {
-  .fr-fan-grid { grid-template-columns: repeat(3, 1fr); gap: 14px 10px; }
+  .fr-fan-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .franchises-list-title { font-size: 22px; }
-  .fr-fan-card { gap: 8px; }
-  .fr-fan-stack { height: 144px; }
-  .fr-fan-poster { width: 76px; height: 114px; margin-left: -38px; }
-  .fr-fan-poster--front { width: 82px; height: 122px; margin-left: -41px; }
-  .fr-fan-name { font-size: 11px; }
-  .fr-fan-tag { font-size: 10px; }
-}
-/* ≤480px covers all modern iPhones (390–430pt) — 2 columns so cards aren't squished */
-@media (max-width: 480px) {
-  .fr-fan-grid { grid-template-columns: repeat(2, 1fr); gap: 18px 12px; }
-  .fr-fan-stack { height: 160px; }
-  .fr-fan-poster { width: 88px; height: 130px; margin-left: -44px; }
-  .fr-fan-poster--front { width: 94px; height: 140px; margin-left: -47px; }
-  .fr-fan-name { font-size: 12.5px; }
+  .fr-fan-info { padding: 12px 11px 10px; }
+  .fr-fan-name { font-size: 13px; }
   .fr-fan-tag { font-size: 10.5px; }
+}
+/* ≤480px — iPhones: 1 column so text stays readable on narrow screens */
+@media (max-width: 480px) {
+  .fr-fan-grid { grid-template-columns: repeat(1, 1fr); gap: 12px; }
+  .fr-fan-name { font-size: 15px; }
+  .fr-fan-tag { font-size: 11px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -8753,6 +8712,10 @@
 ═══════════════════════════════════════════════ */
 
 /* Page background tinted with the active provider's brand color */
+.streaming-page .pattern {
+  z-index: -1;
+}
+
 .streaming-page {
   background:
     radial-gradient(

@@ -84,7 +84,7 @@ export default function RemindersPage() {
 
   return (
     <main>
-      <div className="pattern" />
+
       <div className="wrapper">
         <section className="all-movies">
 

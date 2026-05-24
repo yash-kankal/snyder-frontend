@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import MovieDetailsSkeleton from '../components/MovieDetailsSkeleton'
@@ -18,6 +19,8 @@ import AuthModal from '../components/AuthModal'
 import CommentsSection from '../components/CommentsSection'
 import ImageGallery from '../components/ImageGallery'
 import { SITE_URL } from '../lib/seo'
+
+const fallbackToPoster = (e) => { e.currentTarget.src = '/No-Poster.png' }
 
 const LANG_NAMES = { en:'English', hi:'Hindi', ja:'Japanese', ko:'Korean', zh:'Chinese', fr:'French', es:'Spanish', de:'German', it:'Italian', pt:'Portuguese', ru:'Russian', ar:'Arabic', ta:'Tamil', te:'Telugu', ml:'Malayalam', bn:'Bengali', th:'Thai', tr:'Turkish', id:'Indonesian', nl:'Dutch', pl:'Polish', sv:'Swedish', da:'Danish', no:'Norwegian', fi:'Finnish', he:'Hebrew', vi:'Vietnamese', fa:'Persian', pa:'Punjabi', mr:'Marathi', gu:'Gujarati', kn:'Kannada' }
 
@@ -382,6 +385,7 @@ export default function TVDetails({ routeId } = {}) {
   const [tmdbReviews, setTmdbReviews] = useState([])
   const recsRef                       = useRef(null)
   const [showPoster, setShowPoster]     = useState(false)
+  const [mounted,    setMounted]        = useState(false)
   const [showPicker, setShowPicker]     = useState(false)
   const [pickerRect, setPickerRect]     = useState(null)
   const [saved, setSaved]               = useState(false)
@@ -389,6 +393,7 @@ export default function TVDetails({ routeId } = {}) {
   const [showAuth, setShowAuth]         = useState(false)
 
   useEffect(() => { window.scrollTo(0, 0) }, [id])
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     if (!user) { setSaved(false); setFavorited(false); return }
@@ -488,7 +493,7 @@ export default function TVDetails({ routeId } = {}) {
       <img
         src={member.profile_path ? `https://image.tmdb.org/t/p/w185/${member.profile_path}` : '/No-Poster.png'}
         alt={member.name}
-        onError={e => { e.currentTarget.src = '/No-Poster.png' }}
+        onError={fallbackToPoster}
       />
       <p className="cast-name">{member.name}</p>
       <p className="cast-character">{member.character}</p>
@@ -499,7 +504,7 @@ export default function TVDetails({ routeId } = {}) {
       <img
         src={member.profile_path ? `https://image.tmdb.org/t/p/w185/${member.profile_path}` : '/No-Poster.png'}
         alt={member.name}
-        onError={e => { e.currentTarget.src = '/No-Poster.png' }}
+        onError={fallbackToPoster}
       />
       <p className="cast-name">{member.name}</p>
       <p className="cast-character">{member.job}</p>
@@ -949,7 +954,7 @@ export default function TVDetails({ routeId } = {}) {
                         }
                         alt={title}
                         className="sidebar-rec-poster"
-                        onError={e => { e.currentTarget.src = '/No-Poster.png' }}
+                        onError={fallbackToPoster}
                       />
                       <div className="sidebar-rec-info">
                         <p className="sidebar-rec-title">{title}</p>
@@ -969,13 +974,14 @@ export default function TVDetails({ routeId } = {}) {
 
       </div>
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
-      {showPoster && show?.poster_path && (
+      {mounted && showPoster && show?.poster_path && createPortal(
         <div
           style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,0.88)', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}
           onClick={() => setShowPoster(false)}
         >
           <button
             onClick={e => { e.stopPropagation(); setShowPoster(false) }}
+            aria-label="Close"
             style={{ position:'absolute', top:'16px', right:'16px', width:'40px', height:'40px', borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', zIndex:10000 }}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="18" height="18">
@@ -988,7 +994,8 @@ export default function TVDetails({ routeId } = {}) {
             style={{ maxHeight:'90vh', maxWidth:'min(500px,90vw)', borderRadius:'16px', boxShadow:'0 40px 120px rgba(0,0,0,0.9)' }}
             onClick={e => e.stopPropagation()}
           />
-        </div>
+        </div>,
+        document.body
       )}
     </main>
   )

@@ -17,6 +17,8 @@ import { getUserReminderIds, addReminder, removeReminder } from '../lib/movieAct
 import { useAuth } from '../contexts/AuthContext'
 import AuthModal from '../components/AuthModal'
 
+const hideBrokenImage = (e) => { e.currentTarget.style.display = 'none' }
+
 const PROVIDERS = [
   { id: '',     label: 'All Platforms',  region: ''   },
   // Global / Multi-region
@@ -261,10 +263,11 @@ function FranchisesRow() {
               {fr.backdrop && (
                 <img
                   src={`https://image.tmdb.org/t/p/w780${fr.backdrop}`}
-                  alt=""
-                  className="fran-browse-card-bg"
-                  loading="lazy"
-                />
+	                  alt=""
+	                  className="fran-browse-card-bg"
+	                  loading="lazy"
+	                  onError={hideBrokenImage}
+	                />
               )}
               <div className="fran-browse-card-body">
                 <span className="fran-browse-card-name">{fr.name}</span>
@@ -342,6 +345,7 @@ function PopularTVRow() {
                 alt={show.name}
                 className="fran-browse-card-bg"
                 loading="lazy"
+                onError={hideBrokenImage}
               />
               <div className="fran-browse-card-body">
                 <span className="fran-browse-card-name">{show.name}</span>
@@ -432,6 +436,7 @@ function PopularAnimeRow() {
                 alt={show.name}
                 className="fran-browse-card-bg"
                 loading="lazy"
+                onError={hideBrokenImage}
               />
               <div className="fran-browse-card-body">
                 <span className="fran-browse-card-name">{show.name}</span>
@@ -745,7 +750,6 @@ export default function BrowsePage() {
 
   return (
     <main>
-      <div className="pattern" />
       {showHero && <HeroCarousel mediaType={section === 'anime' ? 'anime' : section === 'tv' ? 'tv' : 'movie'} />}
       {showHero && (section === 'movies' || section === 'tv') && <StreamingHubBanner />}
       {showHero && section === 'movies' && <FranchisesRow />}
@@ -778,10 +782,6 @@ export default function BrowsePage() {
                       className={`browse-tab${!tab || tab === 'now_playing' ? ' browse-tab--active' : ''}`}
                       onClick={() => handleTabChange('now_playing')}
                     >Now Playing</button>
-                    <button
-                      className={`browse-tab${tab === 'popular' ? ' browse-tab--active' : ''}`}
-                      onClick={() => handleTabChange('popular')}
-                    >Popular Movies</button>
                     <button
                       className={`browse-tab${tab === 'coming_soon' ? ' browse-tab--active' : ''}`}
                       onClick={() => handleTabChange('coming_soon')}
