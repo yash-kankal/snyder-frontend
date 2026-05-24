@@ -1,7 +1,6 @@
 'use client'
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useDebounce } from 'react-use'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
 
@@ -30,7 +29,10 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
     setShowDropdown(false)
   }, [searchParams])
 
-  useDebounce(() => setDebouncedQuery(query), 300, [query])
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 300)
+    return () => clearTimeout(timer)
+  }, [query])
 
   useEffect(() => {
     if (!debouncedQuery.trim()) {

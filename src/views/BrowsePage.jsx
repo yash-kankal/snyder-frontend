@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Card from '../components/Card'
@@ -114,9 +114,6 @@ function getLsReminders() {
   try { return new Set(JSON.parse(localStorage.getItem(CS_REMINDERS_KEY) || '[]')) }
   catch { return new Set() }
 }
-function saveLsReminders(set) {
-  localStorage.setItem(CS_REMINDERS_KEY, JSON.stringify([...set]))
-}
 
 // ── Fuzzy search helpers ────────────────────────────────────────────────────
 function getQueryVariants(raw) {
@@ -214,7 +211,6 @@ function processPage(data) {
   return {
     results:      data.results ?? [],
     totalPages:   Math.max(1, Math.min(data.total_pages   ?? 1, 500)),
-    totalResults: data.total_results ?? 0,
   }
 }
 
@@ -306,9 +302,11 @@ function PopularTVRow() {
         setShows(filtered)
         t = setTimeout(checkScroll, 50)
       })
-      .catch(() => {})
+      .catch(() => {
+        // This row is optional; leave it hidden if the fetch fails.
+      })
     return () => clearTimeout(t)
-  }, [])
+  }, [checkScroll])
 
   if (!shows.length) return null
 
@@ -388,9 +386,11 @@ function PopularAnimeRow() {
         setShows(filtered)
         t = setTimeout(checkScroll, 50)
       })
-      .catch(() => {})
+      .catch(() => {
+        // This row is optional; leave it hidden if the fetch fails.
+      })
     return () => clearTimeout(t)
-  }, [])
+  }, [checkScroll])
 
   if (!shows.length) return null
 
@@ -522,7 +522,6 @@ export default function BrowsePage() {
   const [isLoading, setIsLoading]       = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [totalPages, setTotalPages]     = useState(1)
-  const [totalResults, setTotalResults] = useState(0)
 
   // Ref to scroll back to the grid (not the hero) when changing pages
   const gridRef = useRef(null)
@@ -666,7 +665,6 @@ export default function BrowsePage() {
         setIsLoading(false)
         setMovieList(merged)
         setTotalPages(Math.max(1, Math.min(Math.max(...cachedPages.map(p => p.total_pages || 1)), 500)))
-        setTotalResults(merged.length)
         setErrorMessage('')
         return
       }
@@ -681,14 +679,12 @@ export default function BrowsePage() {
           const merged = mergeSearchResults(pages).filter(r => r.media_type !== 'person')
           setMovieList(merged)
           setTotalPages(Math.max(1, Math.min(Math.max(...pages.map(p => p?.total_pages || 1)), 500)))
-          setTotalResults(merged.length)
         })
         .catch(() => {
           if (cancelled) return
           setErrorMessage('Error fetching results. Please try again later.')
           setMovieList([])
           setTotalPages(1)
-          setTotalResults(0)
         })
         .finally(() => { if (!cancelled) setIsLoading(false) })
 
@@ -704,7 +700,6 @@ export default function BrowsePage() {
       setIsLoading(false)
       setMovieList(p.results)
       setTotalPages(p.totalPages)
-      setTotalResults(p.totalResults)
       setErrorMessage('')
       prefetch(getEndpoint(section, urlQuery, page + 1, ratingSort, provider, genre, tab, language, providerRegion), API_OPTIONS, TTL.browse)
       return
@@ -721,13 +716,11 @@ export default function BrowsePage() {
           setErrorMessage('No results found.')
           setMovieList([])
           setTotalPages(1)
-          setTotalResults(0)
           return
         }
         const p = processPage(data)
         setMovieList(p.results)
         setTotalPages(p.totalPages)
-        setTotalResults(p.totalResults)
         prefetch(getEndpoint(section, urlQuery, page + 1, ratingSort, provider, genre, tab, language, providerRegion), API_OPTIONS, TTL.browse)
       })
       .catch(() => {
@@ -735,7 +728,6 @@ export default function BrowsePage() {
         setErrorMessage('Error fetching movies. Please try again later.')
         setMovieList([])
         setTotalPages(1)
-        setTotalResults(0)
       })
       .finally(() => { if (!cancelled) setIsLoading(false) })
 

@@ -1,8 +1,5 @@
 import { useEffect } from 'react'
-
-const SITE_NAME = 'CuedUp'
-const DEFAULT_DESC  = 'Discover movies, TV shows, people and more on CuedUp.'
-const DEFAULT_IMAGE = '/CuedUpLogo.png'
+import { DEFAULT_DESCRIPTION, DEFAULT_IMAGE, SITE_NAME, SITE_URL, absoluteUrl, pageTitle } from './seo'
 
 function setMeta(selector, attr, value) {
   let el = document.querySelector(selector)
@@ -37,10 +34,12 @@ function setCanonical(url) {
  */
 export function usePageMeta(title, description, image) {
   useEffect(() => {
-    const fullTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME
-    const desc  = description || DEFAULT_DESC
-    const img   = image       || DEFAULT_IMAGE
-    const url   = window.location.href
+    const fullTitle = pageTitle(title)
+    const existingDesc = document.querySelector('meta[name="description"]')?.content
+    const existingImage = document.querySelector('meta[property="og:image"]')?.content
+    const desc  = description || existingDesc || DEFAULT_DESCRIPTION
+    const img   = absoluteUrl(image || existingImage || DEFAULT_IMAGE)
+    const url   = `${SITE_URL}${window.location.pathname}`
 
     document.title = fullTitle
 

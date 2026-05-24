@@ -107,7 +107,7 @@ export default function PlaylistPicker({
         setLoading(false)
       }
     })
-  }, [user, movieId])
+  }, [user, movieId, movieTitle, moviePosterPath, mediaType, onClose, onSavedChange, showToast])
 
   const toggle = async (playlist) => {
     if (toggling) return

@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { findFranchiseForMovie } from '../data/franchises'
 import MovieDetailsSkeleton from '../components/MovieDetailsSkeleton'
 import CuedUpRating from '../components/CuedUpRating'
 import Card from '../components/Card'
@@ -18,6 +17,7 @@ import VideoGallery, { sortVideos } from '../components/VideoGallery'
 import AuthModal from '../components/AuthModal'
 import CommentsSection from '../components/CommentsSection'
 import ImageGallery from '../components/ImageGallery'
+import { SITE_URL } from '../lib/seo'
 
 const LANG_NAMES = { en:'English', hi:'Hindi', ja:'Japanese', ko:'Korean', zh:'Chinese', fr:'French', es:'Spanish', de:'German', it:'Italian', pt:'Portuguese', ru:'Russian', ar:'Arabic', ta:'Tamil', te:'Telugu', ml:'Malayalam', bn:'Bengali', th:'Thai', tr:'Turkish', id:'Indonesian', nl:'Dutch', pl:'Polish', sv:'Swedish', da:'Danish', no:'Norwegian', fi:'Finnish', he:'Hebrew', vi:'Vietnamese', fa:'Persian', pa:'Punjabi', mr:'Marathi', gu:'Gujarati', kn:'Kannada' }
 
@@ -38,7 +38,7 @@ const PROVIDER_URLS = {
   384:  (t) => `https://play.max.com/search?q=${encodeURIComponent(t)}`,
   386:  (t) => `https://www.peacocktv.com/search?q=${encodeURIComponent(t)}`,
   531:  (t) => `https://www.paramountplus.com/search/${encodeURIComponent(t)}/`,
-  257:  (t) => `https://www.fubo.tv/welcome`,
+  257:  () => `https://www.fubo.tv/welcome`,
   // India
   2336: (t) => `https://www.hotstar.com/in/search?q=${encodeURIComponent(t)}`,
   122:  (t) => `https://www.hotstar.com/in/search?q=${encodeURIComponent(t)}`,
@@ -249,7 +249,9 @@ export default function MovieDetails({ routeId } = {}) {
     const title = movie?.title || 'this movie'
     const url   = window.location.href
     if (navigator.share) {
-      try { await navigator.share({ title, url }) } catch {}
+      try { await navigator.share({ title, url }) } catch {
+        // User cancelled native share.
+      }
     } else {
       await navigator.clipboard.writeText(url)
       showToast('Link copied!')
@@ -380,8 +382,9 @@ export default function MovieDetails({ routeId } = {}) {
     description: movie.overview,
     image: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
     datePublished: movie.release_date,
-    director: crew.filter(c => c.job === 'Director').map(c => ({ '@type': 'Person', name: c.name, url: `https://cuedup.online/person/${c.id}` })),
-    actor: cast.slice(0, 10).map(c => ({ '@type': 'Person', name: c.name, url: `https://cuedup.online/person/${c.id}` })),
+    url: `${SITE_URL}/movie/${movie.id}`,
+    director: crew.filter(c => c.job === 'Director').map(c => ({ '@type': 'Person', name: c.name, url: `${SITE_URL}/person/${c.id}` })),
+    actor: cast.slice(0, 10).map(c => ({ '@type': 'Person', name: c.name, url: `${SITE_URL}/person/${c.id}` })),
     ...(movie.vote_average > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',

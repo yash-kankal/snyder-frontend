@@ -1,7 +1,7 @@
 import TVDetails from '../../../src/views/TVDetails'
+import { createPageMetadata, SITE_URL } from '../../../src/lib/seo'
 
 const TMDB_BASE = 'https://api.themoviedb.org/3'
-const SITE_URL  = 'https://cuedup.online'
 
 async function getShow(id) {
   try {
@@ -19,28 +19,18 @@ export async function generateMetadata({ params }) {
   if (!show) return { title: 'CuedUp' }
 
   const title = show.name || 'CuedUp'
-  const desc  = (show.overview || 'Discover this title on CuedUp.').slice(0, 300)
+  const desc  = show.overview || `Discover ${title}, including ratings, trailers, cast, streaming availability, and recommendations on CuedUp.`
   const image = show.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280${show.backdrop_path}`
     : `${SITE_URL}/CuedUpLogo.png`
 
-  return {
-    title: `${title} — CuedUp`,
+  return createPageMetadata({
+    title,
     description: desc,
-    openGraph: {
-      title: `${title} — CuedUp`,
-      description: desc,
-      url: `${SITE_URL}/tv/${id}`,
-      images: [{ url: image, width: 1280, height: 720 }],
-      type: 'video.tv_show',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${title} — CuedUp`,
-      description: desc,
-      images: [image],
-    },
-  }
+    path: `/tv/${id}`,
+    image,
+    type: 'video.tv_show',
+  })
 }
 
 export default async function TVPage({ params }) {

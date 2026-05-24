@@ -25,7 +25,7 @@ export default function UserMenu({ mobile = false }) {
   function go(path) { setOpen(false); router.push(path) }
 
   return (
-    <div className="user-menu" ref={ref}>
+    <div className={`user-menu${mobile ? ' user-menu--mobile' : ''}`} ref={ref}>
       <button className="user-avatar-btn" onClick={() => setOpen(o => !o)}>
         {avatar
           ? <img src={avatar} alt={fullName} className="user-avatar-img" />

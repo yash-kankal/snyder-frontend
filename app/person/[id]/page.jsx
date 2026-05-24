@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import PersonPage from '../../../src/views/PersonPage'
+import { createPageMetadata, SITE_URL } from '../../../src/lib/seo'
 
 const TMDB_BASE = 'https://api.themoviedb.org/3'
 
@@ -19,26 +20,18 @@ export async function generateMetadata({ params }) {
   if (!person) return { title: 'CuedUp' }
 
   const name  = person.name || 'Person'
-  const desc  = (person.biography || `Discover ${name}'s movies and TV shows on CuedUp.`).slice(0, 300)
+  const desc  = person.biography || `Discover ${name}'s movies and TV shows, biography, known credits, and filmography on CuedUp.`
   const image = person.profile_path
     ? `https://image.tmdb.org/t/p/w500${person.profile_path}`
-    : 'https://cuedup.online/CuedUpLogo.png'
+    : `${SITE_URL}/CuedUpLogo.png`
 
-  return {
-    title: `${name} — CuedUp`,
+  return createPageMetadata({
+    title: name,
     description: desc,
-    openGraph: {
-      title: `${name} — CuedUp`,
-      description: desc,
-      images: [{ url: image }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${name} — CuedUp`,
-      description: desc,
-      images: [image],
-    },
-  }
+    path: `/person/${id}`,
+    image,
+    type: 'profile',
+  })
 }
 
 export default async function PersonRoute({ params }) {

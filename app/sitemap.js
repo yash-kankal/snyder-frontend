@@ -1,4 +1,4 @@
-const BASE = 'https://www.cuedup.online'
+import { SITE_URL } from '../src/lib/seo'
 
 const staticRoutes = [
   { url: '/',          changeFrequency: 'daily',  priority: 1.0 },
@@ -17,25 +17,25 @@ const personIds = [1032,1152083,1163904,1167956,138,15111,1622390,1708576,178142
 export default function sitemap() {
   return [
     ...staticRoutes.map(r => ({
-      url: `${BASE}${r.url}`,
+      url: `${SITE_URL}${r.url}`,
       lastModified: new Date(),
       changeFrequency: r.changeFrequency,
       priority: r.priority,
     })),
     ...movieIds.map(id => ({
-      url: `${BASE}/movie/${id}`,
+      url: `${SITE_URL}/movie/${id}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     })),
     ...tvIds.map(id => ({
-      url: `${BASE}/tv/${id}`,
+      url: `${SITE_URL}/tv/${id}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     })),
     ...personIds.map(id => ({
-      url: `${BASE}/person/${id}`,
+      url: `${SITE_URL}/person/${id}`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,

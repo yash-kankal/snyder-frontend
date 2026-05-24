@@ -80,7 +80,9 @@ export default function StreamingPage() {
           if (!map[p.provider_id]) map[p.provider_id] = p.logo_path
         })
         setLogos(map)
-      } catch {}
+      } catch {
+        // Provider logos are decorative; content still loads without them.
+      }
     }
     fetchLogos()
   }, [])

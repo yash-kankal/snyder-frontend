@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../contexts/AuthContext'
-import { getFavorites, removeFromFavorites, markUnfavorited } from '../lib/movieActions'
+import { getFavorites } from '../lib/movieActions'
 import { usePageMeta } from '../lib/usePageMeta'
 import Card from '../components/Card'
 import CardSkeleton from '../components/CardSkeleton'
@@ -20,7 +20,7 @@ export default function FavouritesPage() {
     getFavorites(user.id)
       .then(data => { setItems(data); setLoading(false) })
       .catch(() => setLoading(false))
-  }, [user, navigate])
+  }, [user, router])
 
   // Build a Card-compatible movie object from a DB favourite row
   function toMovie(fav) {

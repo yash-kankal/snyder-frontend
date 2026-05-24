@@ -5,7 +5,16 @@ const nextConfig = {
       { protocol: 'https', hostname: 'image.tmdb.org' },
     ],
   },
-  // Suppress the metadataBase warning — we set it in layout
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.cuedup.online' }],
+        destination: 'https://cuedup.online/:path*',
+        permanent: true,
+      },
+    ]
+  },
   experimental: {},
 }
 

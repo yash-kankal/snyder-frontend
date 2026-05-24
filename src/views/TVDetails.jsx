@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import MovieDetailsSkeleton from '../components/MovieDetailsSkeleton'
@@ -18,6 +17,7 @@ import VideoGallery, { sortVideos } from '../components/VideoGallery'
 import AuthModal from '../components/AuthModal'
 import CommentsSection from '../components/CommentsSection'
 import ImageGallery from '../components/ImageGallery'
+import { SITE_URL } from '../lib/seo'
 
 const LANG_NAMES = { en:'English', hi:'Hindi', ja:'Japanese', ko:'Korean', zh:'Chinese', fr:'French', es:'Spanish', de:'German', it:'Italian', pt:'Portuguese', ru:'Russian', ar:'Arabic', ta:'Tamil', te:'Telugu', ml:'Malayalam', bn:'Bengali', th:'Thai', tr:'Turkish', id:'Indonesian', nl:'Dutch', pl:'Polish', sv:'Swedish', da:'Danish', no:'Norwegian', fi:'Finnish', he:'Hebrew', vi:'Vietnamese', fa:'Persian', pa:'Punjabi', mr:'Marathi', gu:'Gujarati', kn:'Kannada' }
 
@@ -38,7 +38,7 @@ const PROVIDER_URLS = {
   384:  (t) => `https://play.max.com/search?q=${encodeURIComponent(t)}`,
   386:  (t) => `https://www.peacocktv.com/search?q=${encodeURIComponent(t)}`,
   531:  (t) => `https://www.paramountplus.com/search/${encodeURIComponent(t)}/`,
-  257:  (t) => `https://www.fubo.tv/welcome`,
+  257:  () => `https://www.fubo.tv/welcome`,
   // India
   2336: (t) => `https://www.hotstar.com/in/search?q=${encodeURIComponent(t)}`,
   122:  (t) => `https://www.hotstar.com/in/search?q=${encodeURIComponent(t)}`,
@@ -126,31 +126,6 @@ const CREW_JOB_ORDER = [
 const KEY_CREW_JOBS = new Set(CREW_JOB_ORDER)
 
 
-// ── Episode synopsis tooltip (follows cursor) ─────────────────────────────────
-function EpTooltip({ text, x, y }) {
-  if (!text) return null
-  const OFFSET = 16
-  const style = {
-    position: 'fixed',
-    left: x + OFFSET,
-    top:  y + OFFSET,
-    zIndex: 9999,
-    pointerEvents: 'none',
-  }
-  // Flip left if near right edge
-  if (x + OFFSET + 280 > window.innerWidth) {
-    style.left = x - OFFSET - 280
-  }
-  // Flip up if near bottom edge
-  if (y + OFFSET + 120 > window.innerHeight) {
-    style.top = y - OFFSET - 120
-  }
-  return createPortal(
-    <div className="ep-synopsis-tooltip" style={style}>{text}</div>,
-    document.body
-  )
-}
-
 // True on real touch/mobile devices — hover events fire unreliably on touch
 const IS_HOVER_DEVICE = typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
@@ -164,7 +139,6 @@ function SeasonsPanel({ showId, seasons }) {
   const [loading, setLoading]       = useState(null)
   const scrollRef                   = useRef(null)
   const seasonTabsRef               = useRef(null)
-  const [tooltip, setTooltip]       = useState({ text: '', x: 0, y: 0 })
   const [activeEp, setActiveEp]     = useState(null)
   const [panelHiding, setPanelHiding] = useState(false)
   const hideTimerRef                = useRef(null)
@@ -439,7 +413,9 @@ export default function TVDetails({ routeId } = {}) {
     const title = show?.name || 'this show'
     const url   = window.location.href
     if (navigator.share) {
-      try { await navigator.share({ title, url }) } catch {}
+      try { await navigator.share({ title, url }) } catch {
+        // User cancelled native share.
+      }
     } else {
       await navigator.clipboard.writeText(url)
       showToast('Link copied!')
@@ -554,7 +530,8 @@ export default function TVDetails({ routeId } = {}) {
     description: show.overview,
     image: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : undefined,
     datePublished: show.first_air_date,
-    actor: cast.slice(0, 10).map(c => ({ '@type': 'Person', name: c.name, url: `https://cuedup.online/person/${c.id}` })),
+    url: `${SITE_URL}/tv/${show.id}`,
+    actor: cast.slice(0, 10).map(c => ({ '@type': 'Person', name: c.name, url: `${SITE_URL}/person/${c.id}` })),
     ...(show.vote_average > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',

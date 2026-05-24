@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useRef, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Spinner from '../components/Spinner'
 import Card from '../components/Card'
@@ -7,6 +7,7 @@ import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
 import JsonLd from '../lib/JsonLd'
+import { SITE_URL } from '../lib/seo'
 
 const FILMOGRAPHY_TABS = ['Known For', 'Films', 'TV Shows', 'Directed']
 
@@ -225,7 +226,7 @@ export default function PersonPage({ routeId } = {}) {
     birthDate: person.birthday || undefined,
     birthPlace: person.place_of_birth || undefined,
     jobTitle: person.known_for_department || undefined,
-    url: `https://cuedup.online/person/${person.id}`,
+    url: `${SITE_URL}/person/${person.id}`,
   }
 
   return (

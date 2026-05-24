@@ -27,7 +27,7 @@ export default function RemindersPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [user, navigate])
+  }, [user, router])
 
   // Build a ComingSoonCard-compatible item from a DB reminder row
   function toItem(rem) {

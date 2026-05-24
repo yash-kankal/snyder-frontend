@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Footer from '../components/Footer'
 import Pagination from '../components/Pagination'
 import { API_BASE_URL, API_OPTIONS } from '../config'
-import { cachedFetch, prefetch, getCached, TTL } from '../lib/apiCache'
+import { cachedFetch, prefetch, TTL } from '../lib/apiCache'
 
 function PersonCard({ person }) {
   const router = useRouter()

@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /favourites
+Disallow: /reminders
 
 Sitemap: https://cuedup.online/sitemap.xml
