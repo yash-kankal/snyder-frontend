@@ -9,6 +9,7 @@ import {
   removeFromFavorites,
 } from '../lib/movieActions'
 import PlaylistPicker from './PlaylistPicker'
+import StarIcon from './StarIcon'
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -171,7 +172,7 @@ const Card = memo(function Card({ movie, mediaType = 'movie' }) {
 
       <div className='content'>
         <div className='rating'>
-          <img src='/star.svg' alt='star icon' />
+          <StarIcon className="rating-star" />
           <p>{movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</p>
         </div>
 

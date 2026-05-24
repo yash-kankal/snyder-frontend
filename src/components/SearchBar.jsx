@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 're
 import { useRouter, useSearchParams } from 'next/navigation'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
+import SearchIcon from './SearchIcon'
 
 const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
   const router = useRouter()
@@ -91,7 +92,7 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
   return (
     <div ref={containerRef} className="search-bar-wrap">
       <div className="search-bar-input">
-        <img src="/Vector.svg" alt="" className="search-bar-icon" />
+        <SearchIcon className="search-bar-icon" />
         <input
           ref={inputRef}
           type="text"

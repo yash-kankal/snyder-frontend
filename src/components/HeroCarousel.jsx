@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, getCached, TTL } from '../lib/apiCache'
+import StarIcon from './StarIcon'
 
 const INTERVAL = 6000 // ms between auto-advances
 
@@ -131,7 +132,7 @@ export default function HeroCarousel({ mediaType = 'movie' }) {
             <div className="hero-meta">
               {item.vote_average > 0 && (
                 <span className="hero-rating">
-                  <img src="/star.svg" alt="star" className="hero-star" />
+                  <StarIcon className="hero-star" />
                   {item.vote_average.toFixed(1)}
                 </span>
               )}

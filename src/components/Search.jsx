@@ -1,3 +1,5 @@
+import SearchIcon from './SearchIcon'
+
 function Search( {searchTerm, setSearchTerm}) {
 
    
@@ -5,11 +7,7 @@ function Search( {searchTerm, setSearchTerm}) {
   return (
     <div className='search'>
 
-        <img src='/Vector.svg' alt='search' style={{
-            marginLeft: 235,
-            marginTop: 9
-
-        }}></img>
+        <SearchIcon className="search-icon" />
 
         <input type='text' placeholder='Search through thousands of movies' value={searchTerm} onChange={(e)=>
             {

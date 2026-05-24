@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
+import StarIcon from './StarIcon'
 
 export default function HeroSection() {
   const [movie, setMovie] = useState(null)
@@ -34,7 +35,7 @@ export default function HeroSection() {
           <div className="hero-meta">
             {movie.vote_average > 0 && (
               <span className="hero-rating">
-                <img src="/star.svg" alt="star" className="hero-star" />
+                <StarIcon className="hero-star" />
                 {movie.vote_average.toFixed(1)}
               </span>
             )}
