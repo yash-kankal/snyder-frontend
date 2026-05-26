@@ -4,6 +4,7 @@ import '../src/App.css'
 import { AuthProvider } from '../src/contexts/AuthContext'
 import Navbar from '../src/components/Navbar'
 import Toaster from '../src/components/Toaster'
+import BfcacheGuard from '../src/components/BfcacheGuard'
 import { DEFAULT_DESCRIPTION, DEFAULT_IMAGE, SITE_NAME, SITE_URL } from '../src/lib/seo'
 
 export const metadata = {
@@ -49,6 +50,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
+          <BfcacheGuard />
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>
