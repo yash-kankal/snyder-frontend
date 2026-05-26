@@ -209,7 +209,7 @@ export default function Navbar() {
           </svg>
           <span>MoodAI</span>
         </button>
-        <button className="mobile-tab" onClick={() => !(mounted && user) && setShowAuth(true)}>
+        <button className="mobile-tab" onClick={() => !user && setShowAuth(true)}>
           {mounted && user
             ? <UserMenu mobile />
             : <>

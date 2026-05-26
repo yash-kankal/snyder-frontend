@@ -1,6 +1,8 @@
 import TVDetails from '../../../src/views/TVDetails'
 import { createPageMetadata, SITE_URL } from '../../../src/lib/seo'
 
+export const dynamic = 'force-dynamic'
+
 const TMDB_BASE = 'https://api.themoviedb.org/3'
 
 async function getShow(id) {

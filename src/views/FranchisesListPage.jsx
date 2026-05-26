@@ -2,18 +2,18 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { FRANCHISES } from '../data/franchises'
-import { FRANCHISE_POSTERS } from '../data/franchise-posters'
 import { usePageMeta } from '../lib/usePageMeta'
 import Footer from '../components/Footer'
 
 const BACKDROP = 'https://image.tmdb.org/t/p/w780'
+const hideOnError = (e) => { e.currentTarget.style.display = 'none' }
 
 function FanCard({ fr }) {
   return (
     <Link href={`/franchise/${fr.slug}`} className="fr-fan-card" style={{ '--fan-color': fr.color }}>
       <div className="fr-fan-stack">
         {fr.backdrop && (
-          <img src={`${BACKDROP}${fr.backdrop}`} alt={fr.name} className="fr-fan-poster" loading="lazy" />
+          <img src={`${BACKDROP}${fr.backdrop}`} alt={fr.name} className="fr-fan-poster" loading="lazy" onError={hideOnError} />
         )}
         <div className="fr-fan-info">
           <span className="fr-fan-name">{fr.name}</span>
