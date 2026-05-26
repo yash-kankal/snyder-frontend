@@ -14,16 +14,16 @@ const inflight = new Map() // url → Promise<data>
 const MAX      = 300
 
 export const TTL = {
-  browse:      3 * 60 * 1000,  //  3 min  — trending/now-playing lists
-  detail:     15 * 60 * 1000,  // 15 min  — movie / person detail pages (rarely change)
-  suggestions: 3 * 60 * 1000,  //  3 min  — search dropdown
+  browse:       2 * 60 * 1000,  //  2 min  — trending/now-playing lists
+  detail:       5 * 60 * 1000,  //  5 min  — movie / person detail pages
+  suggestions:  1 * 60 * 1000,  //  1 min  — search dropdown
 }
 
 // Stale-while-revalidate window: serve stale for this long while revalidating in bg
 const SWR_WINDOW = {
-  browse:      5 * 60 * 1000,  //  5 min
-  detail:     30 * 60 * 1000,  // 30 min
-  suggestions: 5 * 60 * 1000,  //  5 min
+  browse:       2 * 60 * 1000,  //  2 min
+  detail:       5 * 60 * 1000,  //  5 min
+  suggestions:  1 * 60 * 1000,  //  1 min
 }
 
 /** Return cached entry (may be stale), or null if not present at all. */
