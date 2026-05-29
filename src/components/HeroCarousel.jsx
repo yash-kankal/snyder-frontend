@@ -11,6 +11,25 @@ export default function HeroCarousel({ mediaType = 'movie' }) {
   const [movies, setMovies]       = useState([])
   const [activeIndex, setActive]  = useState(0)
   const timerRef                  = useRef(null)
+  const posterRef                 = useRef(null)
+
+  // Backdrop parallax — drifts slower than the content as you scroll past.
+  // Clamped to the scale headroom (1.2 → 60px each side) so no edge shows.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const img = posterRef.current
+      if (!img) return
+      const offset = Math.min(window.scrollY * 0.2, 56)
+      img.style.transform = `translate3d(0, ${offset}px, 0) scale(1.2)`
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    update()
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf) }
+  }, [activeIndex])
 
   useEffect(() => {
     const endpoint = mediaType === 'tv'
@@ -102,6 +121,7 @@ export default function HeroCarousel({ mediaType = 'movie' }) {
         {item.backdrop_path && (
           <div className="hero-poster-wrap">
             <img
+              ref={posterRef}
               src={`https://image.tmdb.org/t/p/w1280${item.backdrop_path}`}
               alt={title}
               className="hero-poster-img"

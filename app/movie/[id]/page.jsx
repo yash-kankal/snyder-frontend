@@ -1,5 +1,6 @@
 import MovieDetails from '../../../src/views/MovieDetails'
-import { createPageMetadata, SITE_URL } from '../../../src/lib/seo'
+import JsonLd from '../../../src/lib/JsonLd'
+import { createPageMetadata, buildMovieJsonLd, SITE_URL } from '../../../src/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,7 +8,7 @@ const TMDB_BASE = 'https://api.themoviedb.org/3'
 
 async function getMovie(id) {
   try {
-    const res = await fetch(`${TMDB_BASE}/movie/${id}`, {
+    const res = await fetch(`${TMDB_BASE}/movie/${id}?append_to_response=credits`, {
       headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_TOKEN}` },
       next: { revalidate: 3600 },
     })
@@ -37,5 +38,11 @@ export async function generateMetadata({ params }) {
 
 export default async function MoviePage({ params }) {
   const { id } = await params
-  return <MovieDetails routeId={id} />
+  const movie = await getMovie(id)
+  return (
+    <>
+      <JsonLd data={buildMovieJsonLd(movie)} />
+      <MovieDetails routeId={id} />
+    </>
+  )
 }

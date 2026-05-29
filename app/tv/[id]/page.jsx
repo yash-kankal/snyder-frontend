@@ -1,5 +1,6 @@
 import TVDetails from '../../../src/views/TVDetails'
-import { createPageMetadata, SITE_URL } from '../../../src/lib/seo'
+import JsonLd from '../../../src/lib/JsonLd'
+import { createPageMetadata, buildTVJsonLd, SITE_URL } from '../../../src/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,7 +8,7 @@ const TMDB_BASE = 'https://api.themoviedb.org/3'
 
 async function getShow(id) {
   try {
-    const res = await fetch(`${TMDB_BASE}/tv/${id}`, {
+    const res = await fetch(`${TMDB_BASE}/tv/${id}?append_to_response=credits`, {
       headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_TOKEN}` },
       next: { revalidate: 3600 },
     })
@@ -37,5 +38,11 @@ export async function generateMetadata({ params }) {
 
 export default async function TVPage({ params }) {
   const { id } = await params
-  return <TVDetails routeId={id} />
+  const show = await getShow(id)
+  return (
+    <>
+      <JsonLd data={buildTVJsonLd(show)} />
+      <TVDetails routeId={id} />
+    </>
+  )
 }

@@ -5,18 +5,34 @@ import { AuthProvider } from '../src/contexts/AuthContext'
 import Navbar from '../src/components/Navbar'
 import Toaster from '../src/components/Toaster'
 import BfcacheGuard from '../src/components/BfcacheGuard'
+import SmoothScroll from '../src/components/SmoothScroll'
+import SiteJsonLd from '../src/lib/SiteJsonLd'
 import { DEFAULT_DESCRIPTION, DEFAULT_IMAGE, SITE_NAME, SITE_URL } from '../src/lib/seo'
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
   title: {
-    default: SITE_NAME,
+    default: `${SITE_NAME} — Discover Movies, TV Shows & Where to Stream`,
     template: `%s - ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
+  keywords: [
+    'movies', 'TV shows', 'anime', 'streaming', 'where to watch',
+    'movie ratings', 'trailers', 'cast', 'franchises', 'watchlist',
+    'film recommendations', 'CuedUp',
+  ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: 'entertainment',
   alternates: {
     canonical: '/',
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/PopCorn.png',
   },
   robots: {
     index: true,
@@ -49,8 +65,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <SiteJsonLd />
         <AuthProvider>
           <BfcacheGuard />
+          <SmoothScroll />
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>

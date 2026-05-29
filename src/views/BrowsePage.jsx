@@ -13,11 +13,33 @@ import { cachedFetch, prefetch, getCached, TTL } from '../lib/apiCache'
 import { FRANCHISES } from '../data/franchises'
 import { showToast } from '../lib/toast'
 import { usePageMeta } from '../lib/usePageMeta'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 import { getUserReminderIds, addReminder, removeReminder } from '../lib/movieActions'
 import { useAuth } from '../contexts/AuthContext'
 import AuthModal from '../components/AuthModal'
 
 const hideBrokenImage = (e) => { e.currentTarget.style.display = 'none' }
+
+const svgProps = {
+  viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+  strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+  className: 'browse-tab-icon',
+}
+const IconComingSoon = () => (
+  <svg {...svgProps}><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v3M10.5 15.5h3"/></svg>
+)
+const IconTrending = () => (
+  <svg {...svgProps}><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>
+)
+const IconAll = () => (
+  <svg {...svgProps}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+)
+const IconFilm = () => (
+  <svg {...svgProps}><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M17 7h5M2 17h5M17 17h5"/></svg>
+)
+const IconTV = () => (
+  <svg {...svgProps}><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+)
 
 const PROVIDERS = [
   { id: '',     label: 'All Platforms',  region: ''   },
@@ -104,12 +126,6 @@ function getUpcomingDateRange() {
   return { today, future }
 }
 
-function getNowPlayingDateRange() {
-  const today = new Date().toISOString().split('T')[0]
-  const past  = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  return { past, today }
-}
-
 // ── Coming Soon reminder helpers (localStorage — logged-out fallback) ─────────
 const CS_REMINDERS_KEY = 'cuedup_reminders'
 function getLsReminders() {
@@ -187,11 +203,6 @@ function getEndpoint(section, query, pageNum, ratingSort, provider, genre, tab, 
     return `${API_BASE_URL}/discover/${mediaType}?page=${pageNum}&sort_by=popularity.desc&${dateKey}.gte=${today}&${dateKey}.lte=${future}`
   }
 
-  if (tab === 'now_playing' && !isTV) {
-    const { past, today } = getNowPlayingDateRange()
-    return `${API_BASE_URL}/discover/movie?page=${pageNum}&sort_by=popularity.desc&primary_release_date.gte=${past}&primary_release_date.lte=${today}`
-  }
-
   if (isTV) return `${API_BASE_URL}/tv/popular?page=${pageNum}`
   return `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${pageNum}`
 }
@@ -204,7 +215,6 @@ function getSectionTitle(section, query, tab) {
     return 'Popular Anime'
   }
   if (tab === 'coming_soon') return section === 'tv' ? 'Coming Soon Shows' : 'Coming Soon Movies'
-  if (tab === 'now_playing') return 'Now Playing'
   if (section === 'tv') return 'Popular TV Shows'
   return 'Popular Movies'
 }
@@ -453,58 +463,6 @@ function PopularAnimeRow() {
   )
 }
 
-function StreamingHubBanner() {
-  const router = useRouter()
-  const [posters, setPosters] = useState([])
-
-  useEffect(() => {
-    cachedFetch(
-      `${API_BASE_URL}/discover/movie?with_watch_providers=8&watch_region=IN&with_watch_monetization_types=flatrate&sort_by=popularity.desc&page=1`,
-      API_OPTIONS,
-      TTL.browse
-    ).then(data => {
-      const results = (data.results || []).filter(r => r.poster_path).slice(0, 6)
-      setPosters(results)
-    }).catch(() => {})
-  }, [])
-
-  return (
-    <div className="shb-outer">
-      <div className="shb-inner" onClick={() => { router.push('/streaming'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-        <div className="shb-left">
-          <div className="shb-logo">
-            <img src="/PopCorn.png" alt="CuedUp logo" className="shb-logo-img" />
-            <span className="shb-logo-text">Cued<span className="text-gradient">Up</span></span>
-          </div>
-          <p className="shb-eyebrow">New Feature</p>
-          <h3 className="shb-title">One Place for All Your Streams</h3>
-          <p className="shb-desc">Browse what's Popular, New, and Top Rated across Netflix, Prime, Disney+, JioHotstar and more, without switching apps.</p>
-          <button className="shb-btn">
-            Explore Streaming Hub
-            <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16 }}>
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/>
-            </svg>
-          </button>
-        </div>
-        {posters.length > 0 && (
-          <div className="shb-posters">
-            {posters.map((m, i) => (
-              <img
-                key={m.id}
-                src={`https://image.tmdb.org/t/p/w185${m.poster_path}`}
-                alt={m.title}
-                className="shb-poster"
-                style={{ '--i': i }}
-                loading="lazy"
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 export default function BrowsePage() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -530,6 +488,8 @@ export default function BrowsePage() {
 
   // Ref to scroll back to the grid (not the hero) when changing pages
   const gridRef = useRef(null)
+  const listRef = useRef(null)
+  useRevealOnScroll(listRef, [movieList, isLoading, tab, section])
 
   // ── Coming Soon reminder state ────────────────────────────────────────────
   const { user } = useAuth()
@@ -751,7 +711,6 @@ export default function BrowsePage() {
   return (
     <main>
       {showHero && <HeroCarousel mediaType={section === 'anime' ? 'anime' : section === 'tv' ? 'tv' : 'movie'} />}
-      {showHero && (section === 'movies' || section === 'tv') && <StreamingHubBanner />}
       {showHero && section === 'movies' && <FranchisesRow />}
       {showHero && section === 'tv'     && <PopularAnimeRow />}
       <div className={`wrapper${showHero ? ' wrapper--after-hero' : ''}`}>
@@ -764,15 +723,15 @@ export default function BrowsePage() {
                 <button
                   className={`browse-tab${!tab || tab === 'now_playing' ? ' browse-tab--active' : ''}`}
                   onClick={() => handleTabChange('now_playing')}
-                >All</button>
+                ><IconAll />All</button>
                 <button
                   className={`browse-tab${tab === 'anime_movies' ? ' browse-tab--active' : ''}`}
                   onClick={() => handleTabChange('anime_movies')}
-                >Movies</button>
+                ><IconFilm />Movies</button>
                 <button
                   className={`browse-tab${tab === 'anime_tv' ? ' browse-tab--active' : ''}`}
                   onClick={() => handleTabChange('anime_tv')}
-                >TV Shows</button>
+                ><IconTV />TV Shows</button>
               </div>
             ) : (
               <div className="browse-tabs">
@@ -781,22 +740,22 @@ export default function BrowsePage() {
                     <button
                       className={`browse-tab${!tab || tab === 'now_playing' ? ' browse-tab--active' : ''}`}
                       onClick={() => handleTabChange('now_playing')}
-                    >Now Playing</button>
+                    ><IconTrending />Popular Movies</button>
                     <button
                       className={`browse-tab${tab === 'coming_soon' ? ' browse-tab--active' : ''}`}
                       onClick={() => handleTabChange('coming_soon')}
-                    >Coming Soon</button>
+                    ><IconComingSoon />Coming Soon</button>
                   </>
                 ) : (
                   <>
                     <button
                       className={`browse-tab${!tab || tab === 'now_playing' ? ' browse-tab--active' : ''}`}
                       onClick={() => handleTabChange('now_playing')}
-                    >Popular Shows</button>
+                    ><IconTrending />Popular Shows</button>
                     <button
                       className={`browse-tab${tab === 'coming_soon' ? ' browse-tab--active' : ''}`}
                       onClick={() => handleTabChange('coming_soon')}
-                    >Coming Soon</button>
+                    ><IconComingSoon />Coming Soon</button>
                   </>
                 )}
               </div>
@@ -880,7 +839,7 @@ export default function BrowsePage() {
             <p className="error-msg">{errorMessage}</p>
           ) : (
             <>
-              <ul>
+              <ul ref={listRef}>
                 {isLoading
                   ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
                   : tab === 'coming_soon'

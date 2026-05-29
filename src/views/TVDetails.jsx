@@ -9,7 +9,6 @@ import Card from '../components/Card'
 import { API_BASE_URL, API_OPTIONS, WATCH_REGION } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
-import JsonLd from '../lib/JsonLd'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserSavedMovieIds, getUserFavoriteIds, addToFavorites, removeFromFavorites } from '../lib/movieActions'
 import { showToast } from '../lib/toast'
@@ -18,7 +17,6 @@ import VideoGallery, { sortVideos } from '../components/VideoGallery'
 import AuthModal from '../components/AuthModal'
 import CommentsSection from '../components/CommentsSection'
 import ImageGallery from '../components/ImageGallery'
-import { SITE_URL } from '../lib/seo'
 
 const fallbackToPoster = (e) => { e.currentTarget.src = '/No-Poster.png' }
 
@@ -528,29 +526,8 @@ export default function TVDetails({ routeId } = {}) {
   const episodeRuntime = show.episode_run_time?.[0]
   const runtime = episodeRuntime ? `${episodeRuntime}m / ep` : null
 
-  const jsonLd = show ? {
-    '@context': 'https://schema.org',
-    '@type': 'TVSeries',
-    name: show.name,
-    description: show.overview,
-    image: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : undefined,
-    datePublished: show.first_air_date,
-    url: `${SITE_URL}/tv/${show.id}`,
-    actor: cast.slice(0, 10).map(c => ({ '@type': 'Person', name: c.name, url: `${SITE_URL}/person/${c.id}` })),
-    ...(show.vote_average > 0 && {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: show.vote_average.toFixed(1),
-        bestRating: '10',
-        worstRating: '1',
-        ratingCount: show.vote_count,
-      },
-    }),
-  } : null
-
   return (
     <main className="relative">
-      <JsonLd data={jsonLd} />
       {backdropUrl && (
         <div className="movie-backdrop" style={{ backgroundImage: `url(${backdropUrl})` }} />
       )}

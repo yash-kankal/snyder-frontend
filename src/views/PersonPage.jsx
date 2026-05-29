@@ -6,8 +6,6 @@ import Card from '../components/Card'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
-import JsonLd from '../lib/JsonLd'
-import { SITE_URL } from '../lib/seo'
 
 const FILMOGRAPHY_TABS = ['Known For', 'Films', 'TV Shows', 'Directed']
 
@@ -217,21 +215,8 @@ export default function PersonPage({ routeId } = {}) {
 
   const birthday = formatBirthday(person.birthday)
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: person.name,
-    description: person.biography || undefined,
-    image: person.profile_path ? `https://image.tmdb.org/t/p/w342${person.profile_path}` : undefined,
-    birthDate: person.birthday || undefined,
-    birthPlace: person.place_of_birth || undefined,
-    jobTitle: person.known_for_department || undefined,
-    url: `${SITE_URL}/person/${person.id}`,
-  }
-
   return (
     <main className="person-page-main">
-      <JsonLd data={jsonLd} />
       <div className="wrapper" style={{ paddingTop: 'calc(72px + 1.5rem)' }}>
         <div className="person-layout">
 

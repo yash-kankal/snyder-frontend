@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import PersonPage from '../../../src/views/PersonPage'
-import { createPageMetadata, SITE_URL } from '../../../src/lib/seo'
+import JsonLd from '../../../src/lib/JsonLd'
+import { createPageMetadata, buildPersonJsonLd, SITE_URL } from '../../../src/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,9 +39,13 @@ export async function generateMetadata({ params }) {
 
 export default async function PersonRoute({ params }) {
   const { id } = await params
+  const person = await getPerson(id)
   return (
-    <Suspense>
-      <PersonPage routeId={id} />
-    </Suspense>
+    <>
+      <JsonLd data={buildPersonJsonLd(person)} />
+      <Suspense>
+        <PersonPage routeId={id} />
+      </Suspense>
+    </>
   )
 }
