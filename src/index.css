@@ -1048,6 +1048,12 @@
     background-position: center;
     background-repeat: no-repeat;
     filter: blur(4px) brightness(0.22) saturate(1.3);
+    /* Promote to a cached GPU layer so the blurred fixed backdrop isn't
+       re-rasterised every frame during JS-driven (Lenis) scroll — kills the
+       top-of-page jitter on detail pages. */
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
   }
 
   .detail-wrapper {
@@ -1828,6 +1834,46 @@
     display: block;
   }
 
+  /* Lite-YouTube facade (thumbnail + play button until clicked) */
+  .trailer-facade {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: #000;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .trailer-facade-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s cubic-bezier(.22,1,.36,1), filter 0.3s ease;
+  }
+  .trailer-facade-play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 92px;
+    height: 64px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(171, 139, 255, 0.92);
+    color: #fff;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+    transition: transform 0.25s cubic-bezier(.22,.68,0,1.3), background 0.2s;
+  }
+  .trailer-facade-play svg { width: 30px; height: 30px; margin-left: 3px; }
+  @media (hover: hover) {
+    .trailer-facade:hover .trailer-facade-img { transform: scale(1.04); filter: brightness(0.85); }
+    .trailer-facade:hover .trailer-facade-play { transform: scale(1.1); background: #ab8bff; }
+  }
+
   .detail-card {
     background: rgba(8, 6, 20, 0.98);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1952,7 +1998,67 @@
     transition: opacity 0.2s ease;
   }
 
+  .detail-production-logo-link {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .detail-production-logo-link:hover .detail-production-logo { opacity: 0.75; }
   .detail-production-logo:hover { opacity: 0.65; }
+
+  .detail-production-link {
+    color: rgba(206, 206, 251, 0.7);
+    text-decoration: none;
+    transition: color 0.18s ease;
+  }
+  .detail-production-link:hover { color: #ab8bff; text-decoration: underline; }
+
+  /* ── Company page header ── */
+  .company-header {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 22px;
+  }
+  .company-logo-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 84px;
+    min-width: 84px;
+    padding: 16px 22px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 16px;
+  }
+  .company-logo {
+    max-height: 52px;
+    max-width: 180px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+  }
+  .company-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ab8bff;
+    margin: 0 0 6px;
+  }
+  .company-name {
+    font-size: 34px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    margin: 0;
+  }
+  @media (max-width: 640px) {
+    .company-header { gap: 16px; }
+    .company-logo-wrap { height: 64px; min-width: 64px; padding: 12px 16px; }
+    .company-logo { max-height: 40px; max-width: 130px; }
+    .company-name { font-size: 24px; }
+  }
 
   /* ── Shared section spacing ── */
   .detail-section {

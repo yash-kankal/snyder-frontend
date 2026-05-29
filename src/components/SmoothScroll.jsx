@@ -2,17 +2,15 @@
 import { useEffect } from 'react'
 
 /**
- * Lenis smooth-scroll, mounted once at the root.
+ * Lenis smooth-scroll, mounted once at the root — active on every route.
  *
  * Deliberately conservative:
- *  - Desktop + fine-pointer only — native touch scroll feels better on mobile
- *    and avoids the laggy "lerped touch" feel.
+ *  - Desktop + fine-pointer only — native touch scroll feels better on mobile.
  *  - Disabled under prefers-reduced-motion (ties into our a11y pass).
  *  - Scrolls the real window, so native `scroll` events still fire — the
- *    navbar-on-scroll and hero parallax stay fully decoupled from Lenis.
+ *    navbar-on-scroll and hero parallax stay decoupled from Lenis.
  *
- * The instance is exposed on window.__lenis so the navbar's "scroll to top"
- * can jump instantly through Lenis instead of fighting it.
+ * Exposed on window.__lenis so scroll-to-top helpers stay in sync.
  */
 export default function SmoothScroll() {
   useEffect(() => {
@@ -23,6 +21,8 @@ export default function SmoothScroll() {
 
     let lenis
     let rafId
+    let ro
+    let timer
     let cancelled = false
 
     import('lenis').then(({ default: Lenis }) => {
@@ -34,16 +34,23 @@ export default function SmoothScroll() {
       })
       window.__lenis = lenis
 
-      const raf = (time) => {
-        lenis.raf(time)
-        rafId = requestAnimationFrame(raf)
-      }
+      const raf = (time) => { lenis.raf(time); rafId = requestAnimationFrame(raf) }
       rafId = requestAnimationFrame(raf)
+
+      // Pages grow after client fetch; recompute bounds once layout settles
+      // (debounced so it never fires mid-scroll and causes jitter).
+      ro = new ResizeObserver(() => {
+        clearTimeout(timer)
+        timer = setTimeout(() => lenis?.resize(), 150)
+      })
+      ro.observe(document.body)
     })
 
     return () => {
       cancelled = true
       if (rafId) cancelAnimationFrame(rafId)
+      if (timer) clearTimeout(timer)
+      if (ro) ro.disconnect()
       if (lenis) { lenis.destroy(); delete window.__lenis }
     }
   }, [])

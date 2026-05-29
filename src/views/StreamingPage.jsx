@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Card from '../components/Card'
 import CardSkeleton from '../components/CardSkeleton'
@@ -7,6 +7,7 @@ import Pagination from '../components/Pagination'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 import Footer from '../components/Footer'
 
 const PROVIDERS = [
@@ -54,6 +55,9 @@ export default function StreamingPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading]   = useState(true)
   const [logos, setLogos]           = useState({})   // { providerId: logo_path }
+
+  const listRef = useRef(null)
+  useRevealOnScroll(listRef, [items, isLoading, tab, mediaType, providerId])
 
   const provider = PROVIDERS.find(p => p.id === providerId) || PROVIDERS[0]
 
@@ -193,7 +197,7 @@ export default function StreamingPage() {
 
         {/* ── Grid ── */}
         <section className="all-movies streaming-grid">
-          <ul>
+          <ul ref={listRef}>
             {isLoading
               ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
               : items.map(item => <Card key={item.id} movie={item} mediaType={mediaType} />)

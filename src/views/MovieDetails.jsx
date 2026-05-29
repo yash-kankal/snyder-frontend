@@ -8,6 +8,7 @@ import CuedUpRating from '../components/CuedUpRating'
 import Card from '../components/Card'
 import { API_BASE_URL, API_OPTIONS, WATCH_REGION } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
+import { scrollToTop, scrollToElement } from '../lib/lenisScroll'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserSavedMovieIds, getUserFavoriteIds, addToFavorites, removeFromFavorites } from '../lib/movieActions'
@@ -17,6 +18,7 @@ import VideoGallery, { sortVideos } from '../components/VideoGallery'
 import AuthModal from '../components/AuthModal'
 import CommentsSection from '../components/CommentsSection'
 import ImageGallery from '../components/ImageGallery'
+import TrailerEmbed from '../components/TrailerEmbed'
 
 const fallbackToPoster = (e) => { e.currentTarget.src = '/No-Poster.png' }
 
@@ -216,7 +218,7 @@ export default function MovieDetails({ routeId } = {}) {
   const [theatricalDate, setTheatrical]   = useState(null)
   const [digitalDate, setDigital]         = useState(null)
 
-  useEffect(() => { window.scrollTo(0, 0) }, [id])
+  useEffect(() => { scrollToTop() }, [id])
   useEffect(() => { setMounted(true) }, [])
 
   const isInTheatres = useMemo(() => {
@@ -565,12 +567,7 @@ export default function MovieDetails({ routeId } = {}) {
           {/* Trailer or no-trailer fallback */}
           {trailer ? (
             <div className="detail-bento-trailer">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
-                title={trailer.name || 'Trailer'}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              <TrailerEmbed videoKey={trailer.key} title={trailer.name} />
             </div>
           ) : (
             <div
@@ -652,7 +649,12 @@ export default function MovieDetails({ routeId } = {}) {
             {movie.tagline && <p className="detail-tagline">"{movie.tagline}"</p>}
             {movie.production_companies?.length > 0 && (
               <p className="detail-production-text">
-                Produced by {movie.production_companies.map(c => c.name).join(', ')}
+                Produced by {movie.production_companies.map((c, i) => (
+                  <span key={c.id}>
+                    {i > 0 && ', '}
+                    <Link href={`/company/${c.id}`} className="detail-production-link">{c.name}</Link>
+                  </span>
+                ))}
               </p>
             )}
           </div>
@@ -660,7 +662,9 @@ export default function MovieDetails({ routeId } = {}) {
             <div className="detail-production-bar">
               <div className="detail-production-logos">
                 {movie.production_companies.filter(c => c.logo_path).map(c => (
-                  <img key={c.id} src={`https://image.tmdb.org/t/p/w92/${c.logo_path}`} alt={c.name} title={c.name} className="detail-production-logo" />
+                  <Link key={c.id} href={`/company/${c.id}`} title={c.name} className="detail-production-logo-link">
+                    <img src={`https://image.tmdb.org/t/p/w92/${c.logo_path}`} alt={c.name} className="detail-production-logo" />
+                  </Link>
                 ))}
               </div>
             </div>
@@ -678,7 +682,7 @@ export default function MovieDetails({ routeId } = {}) {
       <WatchProviderList providers={watchProviders} title={movie.title} isInTheatres={isInTheatres} />
       <button
         className="go-to-reviews-btn"
-        onClick={() => document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        onClick={() => scrollToElement(document.getElementById('comments-section'))}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -760,7 +764,7 @@ export default function MovieDetails({ routeId } = {}) {
               />
               <button
                 className="sidebar-reviews-link"
-                onClick={() => document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                onClick={() => scrollToElement(document.getElementById('comments-section'))}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
