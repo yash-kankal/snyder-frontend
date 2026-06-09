@@ -33,7 +33,12 @@ export default function Navbar() {
   const isOnStreaming = pathname === '/streaming'
   const section       = searchParams.get('section') || 'movies'
   const hasQuery      = !!searchParams.get('q')
-  const isActive      = (s) => isOnBrowse && section === s && !hasQuery
+  // Active on the browse section itself, and on matching detail pages so
+  // visitors stay oriented while deep in a movie / show.
+  const isActive      = (s) =>
+    (isOnBrowse && section === s && !hasQuery) ||
+    (s === 'movies' && pathname.startsWith('/movie/')) ||
+    (s === 'tv'     && pathname.startsWith('/tv/'))
 
   const [lastSection, setLastSection] = useState(() =>
     typeof window !== 'undefined' ? (localStorage.getItem('lastSection') || 'movies') : 'movies'
@@ -218,15 +223,13 @@ export default function Navbar() {
           </svg>
           <span>MoodAI</span>
         </button>
-        <button className="mobile-tab" onClick={() => !user && setShowAuth(true)}>
+        {/* Icon-only account tab — keeps six tabs comfortable on narrow screens */}
+        <button className="mobile-tab mobile-tab--account" onClick={() => !user && setShowAuth(true)} aria-label={user ? 'Account' : 'Sign in'}>
           {mounted && user
             ? <UserMenu mobile />
-            : <>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mobile-tab-icon">
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                </svg>
-                <span>Sign In</span>
-              </>
+            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mobile-tab-icon mobile-tab-icon--account">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
           }
         </button>
       </nav>

@@ -1,9 +1,14 @@
 'use client'
+import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { CURATED_COLLECTIONS } from '../data/collections'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 
 export default function CollectionsPage() {
   const router = useRouter()
+
+  const gridRef = useRef(null)
+  useRevealOnScroll(gridRef, [])
 
   return (
     <main>
@@ -26,7 +31,7 @@ export default function CollectionsPage() {
       </div>
 
       {/* ── Collections grid ── */}
-      <div className="collections-grid">
+      <div className="collections-grid" ref={gridRef}>
         {CURATED_COLLECTIONS.map(collection => (
           <button
             key={collection.slug}

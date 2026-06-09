@@ -19,6 +19,8 @@ import AuthModal from '../components/AuthModal'
 import CommentsSection from '../components/CommentsSection'
 import ImageGallery from '../components/ImageGallery'
 import TrailerEmbed from '../components/TrailerEmbed'
+import ErrorState from '../components/ErrorState'
+import PersonAvatar from '../components/PersonAvatar'
 
 const fallbackToPoster = (e) => { e.currentTarget.src = '/No-Poster.png' }
 
@@ -490,22 +492,14 @@ export default function TVDetails({ routeId } = {}) {
   const handlePickerClose = useCallback(() => setShowPicker(false), [])
   const renderCastCard = useCallback((member) => (
     <Link key={member.id} href={`/person/${member.id}`} className="person-thumb">
-      <img
-        src={member.profile_path ? `https://image.tmdb.org/t/p/w185/${member.profile_path}` : '/No-Poster.png'}
-        alt={member.name}
-        onError={fallbackToPoster}
-      />
+      <PersonAvatar profilePath={member.profile_path} name={member.name} />
       <p className="cast-name">{member.name}</p>
       <p className="cast-character">{member.character}</p>
     </Link>
   ), [])
   const renderCrewCard = useCallback((member) => (
     <Link key={`${member.id}-${member.job}`} href={`/person/${member.id}`} className="person-thumb">
-      <img
-        src={member.profile_path ? `https://image.tmdb.org/t/p/w185/${member.profile_path}` : '/No-Poster.png'}
-        alt={member.name}
-        onError={fallbackToPoster}
-      />
+      <PersonAvatar profilePath={member.profile_path} name={member.name} />
       <p className="cast-name">{member.name}</p>
       <p className="cast-character">{member.job}</p>
     </Link>
@@ -514,13 +508,7 @@ export default function TVDetails({ routeId } = {}) {
   if (isLoading) return <MovieDetailsSkeleton />
 
   if (error || !show) {
-    return (
-      <main>
-        <div className="wrapper">
-          <p className="error-msg mt-10">{error || 'Show not found.'}</p>
-        </div>
-      </main>
-    )
+    return <ErrorState message={error || "This show doesn't exist or the link has expired."} />
   }
 
   const posterUrl   = show.poster_path   ? `https://image.tmdb.org/t/p/w500/${show.poster_path}`   : '/No-Poster.png'

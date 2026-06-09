@@ -37,7 +37,7 @@ export default function FranchisesListPage() {
       <div className="wrapper" style={{ paddingTop: 'calc(72px + 2rem)', paddingBottom: '3rem' }}>
 
         <div className="franchises-list-header page-fade-in">
-          <div className="franchises-list-title">Popular Franchises</div>
+          <h1 className="franchises-list-title">Popular Franchises</h1>
           <p className="franchises-list-sub">{FRANCHISES.length} franchises</p>
         </div>
 

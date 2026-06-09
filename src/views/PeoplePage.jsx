@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Footer from '../components/Footer'
 import Pagination from '../components/Pagination'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, prefetch, TTL } from '../lib/apiCache'
 
@@ -60,6 +61,9 @@ export default function PeoplePage() {
   const router = useRouter()
   const [people, setPeople]         = useState([])
   const [isLoading, setIsLoading]   = useState(true)
+
+  const listRef = useRef(null)
+  useRevealOnScroll(listRef, [people, isLoading])
   const [error, setError]           = useState('')
   const [page, setPage]             = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -144,7 +148,7 @@ export default function PeoplePage() {
           <p className="error-msg">{error}</p>
         ) : (
           <>
-            <div className="people-page-grid">
+            <div className="people-page-grid" ref={listRef}>
               {isLoading
                 ? Array.from({ length: 20 }).map((_, i) => <PersonCardSkeleton key={i} />)
                 : people.map(person => <PersonCard key={person.id} person={person} />)

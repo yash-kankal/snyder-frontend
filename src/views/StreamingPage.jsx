@@ -169,7 +169,7 @@ export default function StreamingPage() {
                 ? <img src={provider.localLogo} alt={provider.name} className="streaming-hero-logo streaming-hero-logo--local" />
                 : <span className="streaming-hero-icon" style={{ background: provider.color }}>{provider.badge}</span>
             }
-            <span className="streaming-hero-name">{provider.name}</span>
+            <h1 className="streaming-hero-name">{provider.name}</h1>
           </div>
 
           {/* Row 2: tabs (left)  +  Movies / TV Shows (right) */}
@@ -204,7 +204,16 @@ export default function StreamingPage() {
             }
           </ul>
           {!isLoading && items.length === 0 && (
-            <p className="error-msg">No results found for this filter.</p>
+            <div className="browse-empty">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="22" cy="22" r="14"/>
+                <line x1="32" y1="32" x2="43" y2="43"/>
+                <line x1="18" y1="22" x2="26" y2="22"/>
+                <line x1="22" y1="18" x2="22" y2="26"/>
+              </svg>
+              <p>No results found</p>
+              <span>Try a different tab or platform</span>
+            </div>
           )}
           {!isLoading && totalPages > 1 && (
             <div className="mt-10">

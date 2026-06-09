@@ -107,7 +107,16 @@ export default function ComingSoonPage() {
           {loading
             ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
             : items.length === 0
-              ? <p className="cs-empty">No upcoming titles found.</p>
+              ? <div className="browse-empty">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="22" cy="22" r="14"/>
+                <line x1="32" y1="32" x2="43" y2="43"/>
+                <line x1="18" y1="22" x2="26" y2="22"/>
+                <line x1="22" y1="18" x2="22" y2="26"/>
+              </svg>
+              <p>No upcoming titles found</p>
+              <span>Check back soon — new releases are added daily</span>
+            </div>
               : items.map(item => (
                   <ComingSoonCard
                     key={item.id}

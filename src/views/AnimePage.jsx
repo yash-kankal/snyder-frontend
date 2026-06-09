@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Card from '../components/Card'
 import CardSkeleton from '../components/CardSkeleton'
@@ -8,6 +8,7 @@ import Footer from '../components/Footer'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, prefetch, getCached, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 
 const SORT_OPTIONS = [
   { value: 'popularity.desc',    label: 'Most Popular' },
@@ -32,6 +33,9 @@ export default function AnimePage() {
   const [page, setPage]             = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [sort, setSort]             = useState('popularity.desc')
+
+  const listRef = useRef(null)
+  useRevealOnScroll(listRef, [animeList, isLoading])
 
   useEffect(() => {
     const url = getEndpoint(page, sort)
@@ -108,7 +112,7 @@ export default function AnimePage() {
             <p className="error-msg">{error}</p>
           ) : (
             <>
-              <ul>
+              <ul ref={listRef}>
                 {isLoading
                   ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
                   : animeList.map(item => (

@@ -20,7 +20,7 @@ async function getPerson(id) {
 export async function generateMetadata({ params }) {
   const { id } = await params
   const person = await getPerson(id)
-  if (!person) return { title: 'CuedUp' }
+  if (!person) return { title: { absolute: 'CuedUp' } }
 
   const name  = person.name || 'Person'
   const desc  = person.biography || `Discover ${name}'s movies and TV shows, biography, known credits, and filmography on CuedUp.`

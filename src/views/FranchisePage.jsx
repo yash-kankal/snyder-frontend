@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 import { useAuth } from '../contexts/AuthContext'
 import { findFranchiseBySlug, findFranchiseByCollectionId } from '../data/franchises'
 import { getUserPlaylists, createPlaylist, addManyToPlaylist } from '../lib/movieActions'
@@ -62,6 +63,9 @@ export default function FranchisePage({ routeId } = {}) {
   )
   const [movies, setMovies]             = useState([])
   const [loading, setLoading]           = useState(true)
+
+  const gridRef = useRef(null)
+  useRevealOnScroll(gridRef, [movies, loading])
   const [notFound, setNotFound]         = useState(false)
   const [order, setOrder]               = useState('default')
   const [backdropPath, setBackdropPath] = useState(null)
@@ -293,7 +297,7 @@ export default function FranchisePage({ routeId } = {}) {
 
       {/* ── Film grid ── */}
       <div className="fran-inner">
-        <div className="fran-grid">
+        <div className="fran-grid" ref={gridRef}>
           {displayMovies.map((movie, i) => {
             const isCurrent   = movie.id === currentMovieId
             const isCardAdded = cardAdded.has(movie.id)

@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Card from '../components/Card'
 import CardSkeleton from '../components/CardSkeleton'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 import Pagination from '../components/Pagination'
 import Footer from '../components/Footer'
 import { API_BASE_URL, API_OPTIONS } from '../config'
@@ -17,6 +18,9 @@ export default function CollectionDetailPage() {
 
   const [items, setItems]           = useState([])
   const [isLoading, setIsLoading]   = useState(false)
+
+  const listRef = useRef(null)
+  useRevealOnScroll(listRef, [items, isLoading])
   const [error, setError]           = useState('')
   const [page, setPage]             = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -98,7 +102,7 @@ export default function CollectionDetailPage() {
             <p className="error-msg">{error}</p>
           ) : (
             <>
-              <ul>
+              <ul ref={listRef}>
                 {isLoading
                   ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
                   : items.map(item => (

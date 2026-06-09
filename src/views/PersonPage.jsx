@@ -6,6 +6,7 @@ import Card from '../components/Card'
 import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
+import ErrorState from '../components/ErrorState'
 
 const FILMOGRAPHY_TABS = ['Known For', 'Films', 'TV Shows', 'Directed']
 
@@ -40,6 +41,7 @@ export default function PersonPage({ routeId } = {}) {
   const [error, setError] = useState('')
   const [photoLoaded, setPhotoLoaded] = useState(false)
   const [wikipediaUrl, setWikipediaUrl] = useState(null)
+  const [bioExpanded, setBioExpanded] = useState(false)
 
   // Lock page scroll on desktop only
   useEffect(() => {
@@ -204,13 +206,7 @@ export default function PersonPage({ routeId } = {}) {
   }
 
   if (error || !person) {
-    return (
-      <main>
-        <div className="wrapper">
-          <p className="error-msg mt-10">{error || 'Person not found.'}</p>
-        </div>
-      </main>
-    )
+    return <ErrorState message={error || "This person doesn't exist or the link has expired."} />
   }
 
   const birthday = formatBirthday(person.birthday)
@@ -307,7 +303,7 @@ export default function PersonPage({ routeId } = {}) {
             </div>
 
             {/* Meta info box under the photo */}
-            <div className="person-meta-card detail-card">
+            <div className="person-meta-card detail-card" data-lenis-prevent>
               {person.known_for_department && (
                 <div className="person-meta-row">
                   <span className="person-meta-label">Department</span>
@@ -376,9 +372,16 @@ export default function PersonPage({ routeId } = {}) {
             </div>
 
             {/* Only this inner div scrolls */}
-            <div className="person-info-scroll">
+            <div className="person-info-scroll" data-lenis-prevent>
               {person.biography && (
-                <p className="person-bio">{person.biography}</p>
+                <div>
+                  <p className={`person-bio${bioExpanded ? '' : ' person-bio--clamped'}`}>{person.biography}</p>
+                  {person.biography.length > 420 && (
+                    <button className="person-bio-toggle" onClick={() => setBioExpanded(e => !e)}>
+                      {bioExpanded ? 'Show less' : 'Read more'}
+                    </button>
+                  )}
+                </div>
               )}
 
               {/* Tabbed filmography */}

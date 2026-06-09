@@ -19,7 +19,7 @@ async function getShow(id) {
 export async function generateMetadata({ params }) {
   const { id } = await params
   const show = await getShow(id)
-  if (!show) return { title: 'CuedUp' }
+  if (!show) return { title: { absolute: 'CuedUp' } }
 
   const title = show.name || 'CuedUp'
   const desc  = show.overview || `Discover ${title}, including ratings, trailers, cast, streaming availability, and recommendations on CuedUp.`

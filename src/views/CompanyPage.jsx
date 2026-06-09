@@ -106,18 +106,28 @@ export default function CompanyPage({ routeId }) {
     <main>
       <div className="wrapper" style={{ paddingTop: 'calc(72px + 2rem)', paddingBottom: '3rem' }}>
 
-        {/* Header */}
-        <div className="company-header">
-          {logoUrl && (
-            <div className="company-logo-wrap">
-              <img src={logoUrl} alt={company.name} className="company-logo" />
+        {/* Header — shimmer skeleton until the company resolves */}
+        {company ? (
+          <div className="company-header">
+            {logoUrl && (
+              <div className="company-logo-wrap">
+                <img src={logoUrl} alt={company.name} className="company-logo" />
+              </div>
+            )}
+            <div>
+              <p className="company-eyebrow">Production Company</p>
+              <h1 className="company-name">{company.name}</h1>
             </div>
-          )}
-          <div>
-            <p className="company-eyebrow">Production Company</p>
-            <h1 className="company-name">{company?.name || 'Loading…'}</h1>
           </div>
-        </div>
+        ) : (
+          <div className="company-header">
+            <div className="company-logo-wrap company-skel-block" />
+            <div>
+              <div className="company-skel-line company-skel-line--sm" />
+              <div className="company-skel-line company-skel-line--lg" />
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="section-header" style={{ marginTop: 8 }}>
@@ -143,7 +153,16 @@ export default function CompanyPage({ routeId }) {
             }
           </ul>
           {!isLoading && items.length === 0 && (
-            <p className="error-msg">No {emptyLabel} found for this company.</p>
+            <div className="browse-empty">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="22" cy="22" r="14"/>
+                <line x1="32" y1="32" x2="43" y2="43"/>
+                <line x1="18" y1="22" x2="26" y2="22"/>
+                <line x1="22" y1="18" x2="22" y2="26"/>
+              </svg>
+              <p>No {emptyLabel} found</p>
+              <span>Try another tab</span>
+            </div>
           )}
           {!isLoading && totalPages > 1 && (
             <div className="mt-10">

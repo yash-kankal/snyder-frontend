@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserReminders, removeReminder, markUnreminded } from '../lib/movieActions'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useToast } from '../contexts/ToastContext'
 import ComingSoonCard from '../components/ComingSoonCard'
@@ -17,6 +18,9 @@ export default function RemindersPage() {
   const [items, setItems]         = useState([])
   const [reminded, setReminded]   = useState(new Set()) // IDs with active reminder
   const [loading, setLoading]     = useState(true)
+
+  const listRef = useRef(null)
+  useRevealOnScroll(listRef, [items, loading])
 
   useEffect(() => {
     if (!user) { router.replace('/browse?section=movies'); return }
@@ -111,7 +115,7 @@ export default function RemindersPage() {
               <span>Tap the 🔔 on upcoming titles to get reminded</span>
             </div>
           ) : (
-            <ul className="cs-cards-ul">
+            <ul className="cs-cards-ul" ref={listRef}>
               {items.map(rem => {
                 const item = toItemWithKey(rem)
                 return (

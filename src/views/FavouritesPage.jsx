@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../contexts/AuthContext'
 import { getFavorites } from '../lib/movieActions'
+import { useRevealOnScroll } from '../lib/useRevealOnScroll'
 import { usePageMeta } from '../lib/usePageMeta'
 import Card from '../components/Card'
 import CardSkeleton from '../components/CardSkeleton'
@@ -14,6 +15,9 @@ export default function FavouritesPage() {
   const router    = useRouter()
   const [items, setItems]     = useState([])
   const [loading, setLoading] = useState(true)
+
+  const listRef = useRef(null)
+  useRevealOnScroll(listRef, [items, loading])
 
   useEffect(() => {
     if (!user) { router.replace('/browse?section=movies'); return }
@@ -63,7 +67,7 @@ export default function FavouritesPage() {
               <span>Tap the ♥ on any movie or show to save it here</span>
             </div>
           ) : (
-            <ul>
+            <ul ref={listRef}>
               {items.map(fav => (
                 <Card
                   key={fav.id}
