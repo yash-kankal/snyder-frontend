@@ -144,7 +144,7 @@ export default function CompanyPage({ routeId }) {
 
         {/* Grid */}
         <section className="all-movies" style={{ marginTop: 20 }}>
-          <ul ref={listRef}>
+          <ul ref={listRef} key={tab} className="tab-content-swap">
             {isLoading
               ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
               : items.map(item => (

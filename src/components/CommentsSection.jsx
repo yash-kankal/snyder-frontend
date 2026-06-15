@@ -91,7 +91,7 @@ export default function CommentsSection({ movieId, tmdbReviews = [] }) {
       {/* ── Header ── */}
       <div className="comments-header">
         <h2 className="comments-title">
-          Comments
+          Reviews
           {totalCuedUp > 0 && <span className="comments-count">{totalCuedUp}</span>}
         </h2>
       </div>
@@ -104,7 +104,7 @@ export default function CommentsSection({ movieId, tmdbReviews = [] }) {
             <textarea
               ref={textareaRef}
               className="comment-input"
-              placeholder="Add a comment…"
+              placeholder="Add a review…"
               value={text}
               onChange={e => { setText(e.target.value); autoResize(e) }}
               onKeyDown={handleKeyDown}
@@ -115,14 +115,14 @@ export default function CommentsSection({ movieId, tmdbReviews = [] }) {
               <span className="comment-char-count">{text.length > 0 ? `${text.length}/1000` : ''}</span>
               <button className="comment-cancel-btn" onClick={() => { setText(''); if (textareaRef.current) textareaRef.current.style.height = 'auto' }}>Cancel</button>
               <button className="comment-post-btn" onClick={handlePost} disabled={posting || !text.trim()}>
-                {posting ? 'Posting…' : 'Comment'}
+                {posting ? 'Posting…' : 'Add Review'}
               </button>
             </div>
             {error && <p className="comment-error">{error}</p>}
           </div>
         </div>
       ) : (
-        <p className="comments-signin-hint">Sign in to leave a comment</p>
+        <p className="comments-signin-hint">Sign in to leave a review</p>
       )}
 
       {/* ── CuedUp Comments ── */}

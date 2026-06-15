@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 
 /* ── Reusable legal modal ────────────────────────────────────────── */
 function LegalModal({ title, onClose, children }) {
@@ -144,6 +145,8 @@ export default function Footer() {
           <div className="footer-left">
             <span className="footer-brand">CuedUp &copy; 2026</span>
             <div className="footer-links">
+              <Link className="footer-link" href="/genres">Browse by Genre</Link>
+              <span className="footer-dot" aria-hidden="true">·</span>
               <button className="footer-link" onClick={() => setModal('privacy')}>Privacy Policy</button>
               <span className="footer-dot" aria-hidden="true">·</span>
               <button className="footer-link" onClick={() => setModal('terms')}>Terms of Service</button>

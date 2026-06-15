@@ -85,7 +85,7 @@ export default function SettingsModal({ onClose }) {
           </button>
         </div>
 
-        <div className="settings-body">
+        <div className="settings-body" data-lenis-prevent>
 
           {/* ── Profile ── */}
           <Section title="Profile">

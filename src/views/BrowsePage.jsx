@@ -839,7 +839,7 @@ export default function BrowsePage() {
             <p className="error-msg">{errorMessage}</p>
           ) : (
             <>
-              <ul ref={listRef}>
+              <ul ref={listRef} key={`${section}-${tab || 'default'}`} className="tab-content-swap">
                 {isLoading
                   ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
                   : tab === 'coming_soon'

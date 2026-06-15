@@ -36,7 +36,7 @@ function formatDate(dateStr) {
   return `${day} ${MONTHS[month - 1]}, ${year}`
 }
 
-const Card = memo(function Card({ movie, mediaType = 'movie' }) {
+const Card = memo(function Card({ movie, mediaType = 'movie', showNewBadge = false }) {
   const { user } = useAuth()
   const [thumbLoaded, setThumbLoaded] = useState(false)
   const [fullLoaded, setFullLoaded]   = useState(false)
@@ -49,6 +49,14 @@ const Card = memo(function Card({ movie, mediaType = 'movie' }) {
   const date    = movie.release_date || movie.first_air_date
   const href    = mediaType === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`
   const movieId = mediaType === 'tv' ? `tv-${movie.id}` : movie.id
+
+  // "New" = released in the last 45 days (and not in the future). TMDB has no
+  // "added to platform" date, so recency of release is the reliable signal.
+  const isNew = showNewBadge && date && (() => {
+    const released = new Date(date).getTime()
+    const now = Date.now()
+    return released <= now && now - released <= 45 * 24 * 60 * 60 * 1000
+  })()
 
   useEffect(() => {
     if (!user) { setSaved(false); setFavorited(false); return }
@@ -92,6 +100,7 @@ const Card = memo(function Card({ movie, mediaType = 'movie' }) {
 
       {/* Fixed 2:3 container — never collapses while image loads */}
       <div className='card-img-wrap'>
+        {isNew && <span className="card-new-badge">NEW</span>}
         {/* Skeleton — shows until at least thumb is loaded */}
         {!fullLoaded && !thumbLoaded && <div className='card-img-skeleton' />}
 

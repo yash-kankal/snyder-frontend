@@ -4,14 +4,13 @@ import { createPortal } from 'react-dom'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import MovieDetailsSkeleton from '../components/MovieDetailsSkeleton'
-import CuedUpRating from '../components/CuedUpRating'
 import Card from '../components/Card'
 import { API_BASE_URL, API_OPTIONS, WATCH_REGION } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
 import { scrollToTop, scrollToElement } from '../lib/lenisScroll'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserSavedMovieIds, getUserFavoriteIds, addToFavorites, removeFromFavorites } from '../lib/movieActions'
+import { getUserSavedMovieIds, getUserFavoriteIds, addToFavorites, removeFromFavorites, getWatchedIds, addToWatched, removeFromWatched } from '../lib/movieActions'
 import { showToast } from '../lib/toast'
 import PlaylistPicker from '../components/PlaylistPicker'
 import VideoGallery, { sortVideos } from '../components/VideoGallery'
@@ -392,18 +391,21 @@ export default function TVDetails({ routeId } = {}) {
   const [pickerRect, setPickerRect]     = useState(null)
   const [saved, setSaved]               = useState(false)
   const [favorited, setFavorited]       = useState(false)
+  const [watched, setWatched]           = useState(false)
   const [showAuth, setShowAuth]         = useState(false)
 
   useEffect(() => { scrollToTop() }, [id])
   useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
-    if (!user) { setSaved(false); setFavorited(false); return }
-    Promise.all([getUserSavedMovieIds(user.id), getUserFavoriteIds(user.id)])
-      .then(([savedIds, favIds]) => {
+    if (!user) { setSaved(false); setFavorited(false); setWatched(false); return }
+    Promise.all([getUserSavedMovieIds(user.id), getUserFavoriteIds(user.id), getWatchedIds(user.id)])
+      .then(([savedIds, favIds, watchedIds]) => {
         setSaved(savedIds.has(`tv-${id}`))
         setFavorited(favIds.has(`tv-${id}`))
+        setWatched(watchedIds.has(`tv-${id}`))
       })
+      .catch(() => {})
   }, [user, id])
 
   const handleFavorite = useCallback(async () => {
@@ -415,6 +417,20 @@ export default function TVDetails({ routeId } = {}) {
       else       await removeFromFavorites(user.id, `tv-${show?.id}`)
     } catch { setFavorited(!next) }
   }, [user, favorited, show])
+
+  const handleWatched = useCallback(async () => {
+    if (!user) { setShowAuth(true); return }
+    const next = !watched
+    setWatched(next)
+    try {
+      if (next) {
+        await addToWatched(user.id, `tv-${show?.id}`, show?.name, show?.poster_path, 'tv')
+        showToast('Added to your diary')
+      } else {
+        await removeFromWatched(user.id, `tv-${show?.id}`)
+      }
+    } catch { setWatched(!next) }
+  }, [user, watched, show])
 
   const handleShare = useCallback(async () => {
     const title = show?.name || 'this show'
@@ -565,6 +581,19 @@ export default function TVDetails({ routeId } = {}) {
           </button>
           {user && (
             <button
+              className={`mob-icon-btn${watched ? ' mob-icon-btn--watched' : ''}`}
+              onClick={handleWatched}
+              aria-label={watched ? 'Remove from watch diary' : 'Mark as watched'}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {watched
+                  ? <path d="M20 6 9 17l-5-5"/>
+                  : <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></>}
+              </svg>
+            </button>
+          )}
+          {user && (
+            <button
               className={`mob-icon-btn${favorited ? ' mob-icon-btn--fav' : ''}`}
               onClick={handleFavorite}
               aria-label={favorited ? 'Remove from favourites' : 'Add to favourites'}
@@ -645,19 +674,8 @@ export default function TVDetails({ routeId } = {}) {
             )}
           </div>
 
-          {/* Right: action buttons — never wraps */}
+          {/* Right: share only — primary actions live in the sidebar card */}
           <div className="detail-title-actions">
-            {user && (
-              <button
-                className={`detail-icon-btn${favorited ? ' detail-icon-btn--fav' : ''}`}
-                onClick={handleFavorite}
-                aria-label={favorited ? 'Remove from favourites' : 'Add to favourites'}
-              >
-                <svg viewBox="0 0 24 24" fill={favorited ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </button>
-            )}
             <button
               className="detail-icon-btn"
               onClick={handleShare}
@@ -668,12 +686,6 @@ export default function TVDetails({ routeId } = {}) {
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
               </svg>
-            </button>
-            <button className={`watchlist-btn${saved ? ' watchlist-btn--added' : ''}`} onClick={e => { if (!user) { setShowAuth(true); return; } setPickerRect(e.currentTarget.getBoundingClientRect()); setShowPicker(true) }}>
-              <svg viewBox="0 0 24 24" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-              </svg>
-              {saved ? 'Saved to List' : 'Add to List'}
             </button>
           </div>
 
@@ -834,17 +846,6 @@ export default function TVDetails({ routeId } = {}) {
           <PeopleCarousel title="Crew" people={crew} renderCard={renderCrewCard} />
         )}
 
-        {/* ── CuedUp Rating — mobile only; desktop instance lives in sidebar ── */}
-        {!isDesktop && (
-          <div className="mob-cuedup">
-            <CuedUpRating
-              movieId={`tv-${id}`}
-              movieTitle={show.name}
-              moviePosterPath={show.poster_path}
-            />
-          </div>
-        )}
-
         {/* ── Comments + TMDB Reviews ── */}
         <CommentsSection movieId={`tv-${id}`} tmdbReviews={tmdbReviews} />
 
@@ -881,19 +882,45 @@ export default function TVDetails({ routeId } = {}) {
             <WatchProviderList providers={watchProviders} title={show.name} />
           </div>
           {isDesktop && (
-            <div className="sidebar-cuedup">
-              <CuedUpRating
-                movieId={`tv-${id}`}
-                movieTitle={show.name}
-                moviePosterPath={show.poster_path}
-              />
+            <div className="detail-card detail-actions-card">
+              <button className={`detail-action-row${watched ? " detail-action-row--watched" : ""}`} onClick={handleWatched}>
+                <span className={`detail-action-icon${watched ? ' detail-action-icon--watched' : ''}`}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {watched
+                      ? <path d="M20 6 9 17l-5-5"/>
+                      : <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></>}
+                  </svg>
+                </span>
+                {watched ? 'Watched' : 'Mark as Watched'}
+              </button>
+              <button className={`detail-action-row${favorited ? " detail-action-row--fav" : ""}`} onClick={handleFavorite}>
+                <span className={`detail-action-icon${favorited ? ' detail-action-icon--fav' : ''}`}>
+                  <svg viewBox="0 0 24 24" fill={favorited ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </span>
+                {favorited ? 'In Favourites' : 'Add to Favourites'}
+              </button>
               <button
-                className="sidebar-reviews-link"
+                className={`detail-action-row${saved ? ' detail-action-row--active' : ''}`}
+                onClick={e => { if (!user) { setShowAuth(true); return } setPickerRect(e.currentTarget.getBoundingClientRect()); setShowPicker(true) }}
+              >
+                <span className={`detail-action-icon${saved ? ' detail-action-icon--saved' : ''}`}>
+                  <svg viewBox="0 0 24 24" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                  </svg>
+                </span>
+                {saved ? 'Saved to List' : 'Add to List'}
+              </button>
+              <button
+                className="detail-action-row detail-action-row--reviews"
                 onClick={() => scrollToElement(document.getElementById('comments-section'))}
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
+                <span className="detail-action-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </span>
                 Go to user reviews
               </button>
             </div>

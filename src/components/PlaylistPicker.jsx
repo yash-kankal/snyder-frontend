@@ -157,7 +157,7 @@ export default function PlaylistPicker({
       </div>
 
       <div className="picker-body">
-        <div className="picker-list">
+        <div className="picker-list" data-lenis-prevent>
           {playlists.map(p => {
             const isIn = inPlaylists.includes(p.id)
             return (

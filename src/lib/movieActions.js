@@ -33,55 +33,6 @@ async function dedupedQuery(key, queryFn) {
   return promise
 }
 
-// ── Ratings ───────────────────────────────────────────────────────
-
-export async function getUserRating(userId, movieId) {
-  return dedupedQuery(`rating:${userId}:${movieId}`, async () => {
-    const { data } = await supabase
-      .from('movie_ratings')
-      .select('rating')
-      .eq('user_id', userId)
-      .eq('movie_id', movieId)
-      .maybeSingle()
-    return data?.rating || null
-  })
-}
-
-export async function setUserRating(userId, movieId, movieTitle, moviePosterPath, rating) {
-  const { error } = await supabase
-    .from('movie_ratings')
-    .upsert(
-      { user_id: userId, movie_id: movieId, movie_title: movieTitle, movie_poster_path: moviePosterPath, rating },
-      { onConflict: 'user_id,movie_id' }
-    )
-  if (error) throw error
-  cacheDelete(`rating:${userId}:${movieId}`, `counts:${movieId}`)
-}
-
-export async function removeUserRating(userId, movieId) {
-  const { error } = await supabase
-    .from('movie_ratings')
-    .delete()
-    .eq('user_id', userId)
-    .eq('movie_id', movieId)
-  if (error) throw error
-  cacheDelete(`rating:${userId}:${movieId}`, `counts:${movieId}`)
-}
-
-export async function getRatingCounts(movieId) {
-  return dedupedQuery(`counts:${movieId}`, async () => {
-    const { data } = await supabase
-      .from('movie_ratings')
-      .select('rating')
-      .eq('movie_id', movieId)
-    const counts = { dont_watch: 0, good_watch: 0, must_watch: 0 }
-    for (const row of data || []) {
-      if (counts[row.rating] !== undefined) counts[row.rating]++
-    }
-    return counts
-  })
-}
-
 // ── Saved-movie-IDs set (one shared query per session) ───────────
 let _savedIds     = null
 let _savedIdsUser = null
@@ -446,6 +397,65 @@ export async function removeFromWatchlist(userId, movieId) {
     .eq('movie_id', movieId)
   if (error) throw error
   cacheSet(`wl:${userId}:${movieId}`, false)
+}
+
+// ── Watch Diary (watched) ────────────────────────────────────────────────────
+
+let _watchedIds     = null
+let _watchedIdsUser = null
+
+/** Set of movie_ids ('tv-<id>' for shows) the user has marked watched. */
+export async function getWatchedIds(userId) {
+  if (_watchedIds && _watchedIdsUser === userId) return _watchedIds
+  const { data } = await supabase
+    .from('watched')
+    .select('movie_id')
+    .eq('user_id', userId)
+  _watchedIds = new Set((data || []).map(r => String(r.movie_id)))
+  _watchedIdsUser = userId
+  return _watchedIds
+}
+
+export function markWatched(movieId)   { _watchedIds?.add(String(movieId)) }
+export function markUnwatched(movieId) { _watchedIds?.delete(String(movieId)) }
+/** Call on logout / user-switch so the cache rebuilds for the new user. */
+export function resetWatchedIds()      { _watchedIds = null; _watchedIdsUser = null }
+
+export async function addToWatched(userId, movieId, movieTitle, moviePosterPath, mediaType = 'movie', watchedAt = null) {
+  const row = {
+    user_id: userId,
+    movie_id: String(movieId),
+    movie_title: movieTitle,
+    movie_poster_path: moviePosterPath,
+    media_type: mediaType,
+  }
+  if (watchedAt) row.watched_at = watchedAt
+  const { error } = await supabase
+    .from('watched')
+    .upsert(row, { onConflict: 'user_id,movie_id' })
+  if (error) throw error
+  markWatched(movieId)
+}
+
+export async function removeFromWatched(userId, movieId) {
+  const { error } = await supabase
+    .from('watched')
+    .delete()
+    .eq('user_id', userId)
+    .eq('movie_id', String(movieId))
+  if (error) throw error
+  markUnwatched(movieId)
+}
+
+/** Full diary rows, newest watched first. */
+export async function getWatched(userId) {
+  const { data, error } = await supabase
+    .from('watched')
+    .select('*')
+    .eq('user_id', userId)
+    .order('watched_at', { ascending: false })
+  if (error) throw error
+  return data || []
 }
 
 // ── Comments ─────────────────────────────────────────────────────────────────

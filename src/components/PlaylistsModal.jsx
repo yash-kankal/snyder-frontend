@@ -158,7 +158,7 @@ function FullPlaylistView({ playlist: initialPlaylist, userId, onBack, onClose, 
         </div>
       </div>
 
-      <div className="pm-body">
+      <div className="pm-body" data-lenis-prevent>
         {!loading && items.length > 0 && (
           <p className="pm-playlist-count">{items.length} {items.length === 1 ? 'title' : 'titles'}</p>
         )}
@@ -456,7 +456,7 @@ export default function PlaylistsModal({ onClose, autoCreate = false }) {
             </div>
           )}
 
-          <div className="pm-body">
+          <div className="pm-body" data-lenis-prevent>
             {loading ? (
               <>
                 <PlaylistRowSkeleton />

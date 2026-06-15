@@ -200,7 +200,7 @@ export default function StreamingPage() {
           <ul ref={listRef}>
             {isLoading
               ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
-              : items.map(item => <Card key={item.id} movie={item} mediaType={mediaType} />)
+              : items.map(item => <Card key={item.id} movie={item} mediaType={mediaType} showNewBadge />)
             }
           </ul>
           {!isLoading && items.length === 0 && (

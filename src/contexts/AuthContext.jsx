@@ -1,7 +1,7 @@
 'use client'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { resetSavedIds } from '../lib/movieActions'
+import { resetSavedIds, resetWatchedIds } from '../lib/movieActions'
 
 const AuthContext = createContext(null)
 
@@ -19,6 +19,7 @@ export function AuthProvider({ children }) {
     // Listen for auth changes — reset saved-IDs cache so it rebuilds for the new user
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       resetSavedIds()
+      resetWatchedIds()
       setUser(session?.user ?? null)
     })
 
