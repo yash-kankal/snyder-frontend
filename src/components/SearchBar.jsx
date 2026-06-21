@@ -32,6 +32,9 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
   const [showDropdown, setShowDropdown] = useState(false)
   const [loading, setLoading] = useState(false)
   const [totalResults, setTotalResults] = useState(0)
+  const [trendingMovies, setTrendingMovies] = useState([])
+  const [trendingTV, setTrendingTV]         = useState([])
+  const [trendingPeople, setTrendingPeople] = useState([])
 
   const containerRef = useRef(null)
   const inputRef = useRef(null)
@@ -47,6 +50,18 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
   }, [searchParams])
 
   useEffect(() => {
+    Promise.all([
+      cachedFetch(`${API_BASE_URL}/trending/movie/week`, API_OPTIONS, TTL.browse),
+      cachedFetch(`${API_BASE_URL}/trending/tv/week`,    API_OPTIONS, TTL.browse),
+      cachedFetch(`${API_BASE_URL}/trending/person/week`, API_OPTIONS, TTL.browse),
+    ]).then(([m, tv, p]) => {
+      setTrendingMovies((m.results || []).filter(r => r.poster_path).slice(0, 5))
+      setTrendingTV((tv.results || []).filter(r => r.poster_path).slice(0, 5))
+      setTrendingPeople((p.results || []).filter(r => r.profile_path).slice(0, 5))
+    }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300)
     return () => clearTimeout(timer)
   }, [query])
@@ -54,7 +69,6 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
   useEffect(() => {
     if (!debouncedQuery.trim()) {
       setMovies([]); setTvShows([]); setPeople([])
-      setShowDropdown(false)
       return
     }
     const fetchSuggestions = async () => {
@@ -117,10 +131,11 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
   const handleChange = (e) => {
     const val = e.target.value
     setQuery(val)
-    if (!val.trim()) setShowDropdown(false)
+    if (!val.trim()) setShowDropdown(true)
   }
 
   const hasResults = movies.length > 0 || tvShows.length > 0 || people.length > 0
+  const hasTrending = trendingMovies.length > 0 || trendingTV.length > 0 || trendingPeople.length > 0
 
   return (
     <div ref={containerRef} className="search-bar-wrap">
@@ -132,7 +147,7 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => hasResults && query.trim() && setShowDropdown(true)}
+          onFocus={() => setShowDropdown(true)}
           placeholder="Search movies, shows, people..."
           autoComplete="off"
           autoFocus={autoFocus}
@@ -140,7 +155,7 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
         {query && (
           <button
             className="search-bar-clear"
-            onClick={() => { setQuery(''); setMovies([]); setTvShows([]); setPeople([]); setShowDropdown(false) }}
+            onClick={() => { setQuery(''); setMovies([]); setTvShows([]); setPeople([]); setShowDropdown(true) }}
             aria-label="Clear"
           >×</button>
         )}
@@ -148,7 +163,72 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
 
       {showDropdown && (
         <div className="search-dropdown">
-          {loading ? (
+          {!query.trim() && hasTrending ? (
+            <>
+              {trendingMovies.length > 0 && (
+                <div className="search-dropdown-section">
+                  <p className="search-dropdown-section-label">
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="search-section-icon">
+                      <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+                    </svg>
+                    Trending Movies
+                  </p>
+                  {trendingMovies.map(m => (
+                    <button key={m.id} className="search-dropdown-item"
+                      onClick={() => { setShowDropdown(false); router.push(`/movie/${m.id}`) }}>
+                      <img src={`https://image.tmdb.org/t/p/w92/${m.poster_path}`} alt={m.title} />
+                      <div className="search-dropdown-item-info">
+                        <p className="search-dropdown-title">{m.title}</p>
+                        <p className="search-dropdown-meta">{m.release_date?.split('-')[0] || '—'}{' · ★ '}{m.vote_average?.toFixed(1) || 'N/A'}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {trendingTV.length > 0 && (
+                <div className="search-dropdown-section">
+                  <p className="search-dropdown-section-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-section-icon">
+                      <rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/>
+                    </svg>
+                    Trending TV Shows
+                  </p>
+                  {trendingTV.map(t => (
+                    <button key={t.id} className="search-dropdown-item"
+                      onClick={() => { setShowDropdown(false); router.push(`/tv/${t.id}`) }}>
+                      <img src={`https://image.tmdb.org/t/p/w92/${t.poster_path}`} alt={t.name} />
+                      <div className="search-dropdown-item-info">
+                        <p className="search-dropdown-title">{t.name}</p>
+                        <p className="search-dropdown-meta">{t.first_air_date?.split('-')[0] || '—'}{' · ★ '}{t.vote_average?.toFixed(1) || 'N/A'}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {trendingPeople.length > 0 && (
+                <div className="search-dropdown-section search-dropdown-section--people">
+                  <p className="search-dropdown-section-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-section-icon">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Trending People
+                  </p>
+                  <div className="search-people-row">
+                    {trendingPeople.map(p => (
+                      <button key={p.id} className="search-person-item"
+                        onClick={() => { setShowDropdown(false); router.push(`/person/${p.id}`) }}>
+                        <div className="search-person-avatar">
+                          <img src={`https://image.tmdb.org/t/p/w185/${p.profile_path}`} alt={p.name} />
+                        </div>
+                        <p className="search-person-name">{p.name}</p>
+                        <p className="search-person-dept">{p.known_for_department || 'Actor'}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : loading ? (
             <div className="search-dropdown-section">
               {[1, 2, 3, 4].map(i => (
                 <div key={i} className="search-skel-item">
