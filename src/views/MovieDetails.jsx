@@ -701,31 +701,6 @@ export default function MovieDetails({ routeId } = {}) {
         <VideoGallery videos={videos} />
         <ImageGallery images={images} />
 
-        {/* ── External Links ── */}
-        {externalIds && (externalIds.imdb_id || externalIds.wikidata_id) && (
-          <div className="detail-card detail-external-links">
-            <span className="detail-card-label">Find on</span>
-            <div className="detail-ext-links-row">
-              {externalIds.imdb_id && (
-                <a href={`https://www.imdb.com/title/${externalIds.imdb_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--imdb">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.31 9.588v.005c-.077-.048-.227-.07-.42-.07v4.972c.22 0 .372-.028.44-.09.068-.06.108-.262.108-.673V10.29c0-.394-.04-.636-.128-.702zM22 4H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-14.5 9.5h-1.5v-5h1.5v5zm3 0H9v-5h1.5v1.5H12V8.5h1.5v5zm4.5 0h-1.388l-.056-.34c-.288.27-.616.404-.984.404-.476 0-.807-.16-.993-.482-.11-.19-.163-.497-.163-.92V9.357c0-.405.056-.7.17-.886.19-.31.525-.466 1.005-.466.36 0 .683.126.965.378V8.5H15v5zm3.5 0h-3v-5h1.5v3.5H19v1.5z"/></svg>
-                  IMDB
-                </a>
-              )}
-              <a href={`https://www.themoviedb.org/movie/${id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                TMDB
-              </a>
-              {externalIds.imdb_id && (
-                <a href={`https://letterboxd.com/imdb/${externalIds.imdb_id}/`} target="_blank" rel="noopener noreferrer" className="person-ext-link">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm-1 14.5l-4-2.5 4-2.5v5zm2 0V11.5l4 2.5-4 2.5z"/></svg>
-                  Letterboxd
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* ── Cast ── */}
         {cast.length > 0 && (
           <PeopleCarousel title="Cast" people={cast} renderCard={renderCastCard} />
