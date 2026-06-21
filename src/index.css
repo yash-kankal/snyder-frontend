@@ -932,7 +932,7 @@
 
   .movie-card h3 {
     @apply text-white font-bold text-left;
-    font-size: 20px;
+    font-size: 15px;
     margin-top: 14px;
     line-height: 1.3;
     white-space: nowrap;
@@ -956,24 +956,24 @@
   }
 
   .movie-card .rating p {
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 700;
     color: white;
   }
 
   .movie-card .content span {
-    font-size: 20px;
+    font-size: 13px;
     color: rgba(156, 164, 171, 0.5);
   }
 
   .movie-card .content .lang {
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 500;
     color: rgba(156, 164, 171, 0.85);
   }
 
   .movie-card .content .year {
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 500;
     color: rgba(156, 164, 171, 0.85);
   }
