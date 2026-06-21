@@ -937,7 +937,7 @@
   }
 
   .movie-card .content {
-    @apply mt-2 flex flex-row items-center flex-wrap gap-1.5 justify-start;
+    @apply mt-0 flex flex-row items-center flex-wrap gap-1.5 justify-start;
   }
 
   .movie-card .rating {
@@ -3645,7 +3645,7 @@
     line-height: 1.25;
   }
   .movie-card .content {
-    margin-top: 4px;
+    margin-top: 0;
     gap: 3px 4px;
   }
   .movie-card .rating img,
