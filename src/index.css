@@ -943,7 +943,7 @@
 
   .movie-card .content {
     @apply flex flex-row items-center flex-wrap gap-1.5 justify-start;
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   .movie-card .rating {
