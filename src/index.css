@@ -271,6 +271,38 @@
     border-bottom: 1px solid rgba(206, 206, 251, 0.05);
   }
 
+  .search-dropdown-item--trending {
+    gap: 10px;
+  }
+
+  .search-trend-rank {
+    font-size: 13px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    width: 24px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .search-trend-rank--1 { color: #f59e0b; }
+  .search-trend-rank--2 { color: #94a3b8; }
+  .search-trend-rank--3 { color: #b45309; }
+
+  .search-person-avatar--trending {
+    position: relative;
+  }
+  .search-trend-rank-avatar {
+    position: absolute;
+    bottom: -4px;
+    right: -6px;
+    font-size: 10px;
+    font-weight: 800;
+    background: #0f0d23;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    padding: 1px 4px;
+    line-height: 1.4;
+  }
+
   .search-dropdown-item:last-of-type {
     border-bottom: none;
   }

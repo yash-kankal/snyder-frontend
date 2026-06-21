@@ -55,9 +55,9 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
       cachedFetch(`${API_BASE_URL}/trending/tv/week`,    API_OPTIONS, TTL.browse),
       cachedFetch(`${API_BASE_URL}/trending/person/week`, API_OPTIONS, TTL.browse),
     ]).then(([m, tv, p]) => {
-      setTrendingMovies((m.results || []).filter(r => r.poster_path).slice(0, 5))
-      setTrendingTV((tv.results || []).filter(r => r.poster_path).slice(0, 5))
-      setTrendingPeople((p.results || []).filter(r => r.profile_path).slice(0, 5))
+      setTrendingMovies((m.results || []).filter(r => r.poster_path).slice(0, 3))
+      setTrendingTV((tv.results || []).filter(r => r.poster_path).slice(0, 3))
+      setTrendingPeople((p.results || []).filter(r => r.profile_path).slice(0, 3))
     }).catch(() => {})
   }, [])
 
@@ -168,14 +168,13 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
               {trendingMovies.length > 0 && (
                 <div className="search-dropdown-section">
                   <p className="search-dropdown-section-label">
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="search-section-icon">
-                      <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
-                    </svg>
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="search-section-icon"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/></svg>
                     Trending Movies
                   </p>
-                  {trendingMovies.map(m => (
-                    <button key={m.id} className="search-dropdown-item"
+                  {trendingMovies.map((m, i) => (
+                    <button key={m.id} className="search-dropdown-item search-dropdown-item--trending"
                       onClick={() => { setShowDropdown(false); router.push(`/movie/${m.id}`) }}>
+                      <span className={`search-trend-rank search-trend-rank--${i + 1}`}>#{i + 1}</span>
                       <img src={`https://image.tmdb.org/t/p/w92/${m.poster_path}`} alt={m.title} />
                       <div className="search-dropdown-item-info">
                         <p className="search-dropdown-title">{m.title}</p>
@@ -188,14 +187,13 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
               {trendingTV.length > 0 && (
                 <div className="search-dropdown-section">
                   <p className="search-dropdown-section-label">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-section-icon">
-                      <rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-section-icon"><rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
                     Trending TV Shows
                   </p>
-                  {trendingTV.map(t => (
-                    <button key={t.id} className="search-dropdown-item"
+                  {trendingTV.map((t, i) => (
+                    <button key={t.id} className="search-dropdown-item search-dropdown-item--trending"
                       onClick={() => { setShowDropdown(false); router.push(`/tv/${t.id}`) }}>
+                      <span className={`search-trend-rank search-trend-rank--${i + 1}`}>#{i + 1}</span>
                       <img src={`https://image.tmdb.org/t/p/w92/${t.poster_path}`} alt={t.name} />
                       <div className="search-dropdown-item-info">
                         <p className="search-dropdown-title">{t.name}</p>
@@ -208,17 +206,16 @@ const SearchBar = forwardRef(function SearchBar({ autoFocus = false }, ref) {
               {trendingPeople.length > 0 && (
                 <div className="search-dropdown-section search-dropdown-section--people">
                   <p className="search-dropdown-section-label">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-section-icon">
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-section-icon"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     Trending People
                   </p>
                   <div className="search-people-row">
-                    {trendingPeople.map(p => (
+                    {trendingPeople.map((p, i) => (
                       <button key={p.id} className="search-person-item"
                         onClick={() => { setShowDropdown(false); router.push(`/person/${p.id}`) }}>
-                        <div className="search-person-avatar">
+                        <div className="search-person-avatar search-person-avatar--trending">
                           <img src={`https://image.tmdb.org/t/p/w185/${p.profile_path}`} alt={p.name} />
+                          <span className={`search-trend-rank-avatar search-trend-rank--${i + 1}`}>#{i + 1}</span>
                         </div>
                         <p className="search-person-name">{p.name}</p>
                         <p className="search-person-dept">{p.known_for_department || 'Actor'}</p>
