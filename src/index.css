@@ -8720,9 +8720,6 @@
 .person-lightbox-modal--wide {
   max-width: min(1100px, 94vw);
 }
-.person-lightbox-modal--wide .person-lightbox-img {
-  max-height: 80vh;
-}
 
 .person-lightbox-close {
   position: absolute;
@@ -8744,16 +8741,14 @@
 .person-lightbox-close svg { width: 18px; height: 18px; }
 
 .person-lightbox-body {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  position: relative;
   width: 100%;
 }
 
 .person-lightbox-img {
-  flex: 1;
-  min-width: 0;
-  max-height: 72vh;
+  width: 100%;
+  height: auto;
+  max-height: 75vh;
   border-radius: 10px;
   object-fit: contain;
   display: block;
@@ -8761,25 +8756,30 @@
 }
 
 .person-lightbox-arrow {
-  background: rgba(74, 222, 128, 0.1);
-  border: 1px solid rgba(74, 222, 128, 0.25);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(74, 222, 128, 0.35);
   border-radius: 50%;
   width: 42px;
   height: 42px;
-  min-width: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #4ade80;
   transition: background 0.15s, border-color 0.15s;
-  flex-shrink: 0;
+  backdrop-filter: blur(4px);
 }
 .person-lightbox-arrow:hover {
-  background: rgba(74, 222, 128, 0.2);
-  border-color: rgba(74, 222, 128, 0.5);
+  background: rgba(74, 222, 128, 0.18);
+  border-color: rgba(74, 222, 128, 0.6);
 }
 .person-lightbox-arrow svg { width: 22px; height: 22px; }
+.person-lightbox-body .person-lightbox-arrow:first-child { left: 10px; }
+.person-lightbox-body .person-lightbox-arrow:last-child  { right: 10px; }
 
 .person-lightbox-count {
   font-size: 13px;
