@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 
-const BUILD_ID = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || 'dev'
+const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_TIME || 'dev'
 
 export default function BfcacheGuard() {
   useEffect(() => {

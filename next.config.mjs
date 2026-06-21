@@ -20,6 +20,10 @@ const nextConfig = {
     ]
   },
 
+  env: {
+    NEXT_PUBLIC_BUILD_TIME: Date.now().toString(),
+  },
+
   experimental: {
     staleTimes: {
       dynamic: 0,
