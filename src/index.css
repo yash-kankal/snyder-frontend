@@ -8765,6 +8765,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
+  z-index: 10;
   background: rgba(206, 206, 251, 0.08);
   border: none;
   border-radius: 50%;
