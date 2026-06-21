@@ -308,96 +308,6 @@ function PopularTVRow() {
   )
 }
 
-function PopularAnimeRow() {
-  const router = useRouter()
-  const scrollRef = useRef(null)
-  const [shows, setShows]                   = useState([])
-  const [canScrollLeft, setCanScrollLeft]   = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-
-  const checkScroll = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    setCanScrollLeft(el.scrollLeft > 4)
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
-  }, [])
-  const scroll = (dir) => scrollRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
-
-  useEffect(() => {
-    let t
-    cachedFetch(
-      `${API_BASE_URL}/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=1`,
-      API_OPTIONS, TTL.browse
-    )
-      .then(data => {
-        const filtered = (data.results || [])
-          .filter(s => s.backdrop_path)
-          .slice(0, 16)
-        setShows(filtered)
-        t = setTimeout(checkScroll, 50)
-      })
-      .catch(() => {
-        // This row is optional; leave it hidden if the fetch fails.
-      })
-    return () => clearTimeout(t)
-  }, [checkScroll])
-
-  if (!shows.length) return null
-
-  return (
-    <div className="fran-browse-section">
-      <div className="fran-browse-inner">
-        <div className="fran-browse-header">
-          <div className="fran-browse-header-left">
-            <h2 className="fran-browse-title">Popular Anime</h2>
-            <button
-              className="fran-browse-see-all"
-              onClick={() => { router.push('/anime'); window.scrollTo({ top: 0, behavior: 'instant' }) }}
-            >
-              See All <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 14, height: 14, display: 'inline', verticalAlign: 'middle' }}><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/></svg>
-            </button>
-          </div>
-          <div className="fran-browse-nav">
-            <button className="fran-browse-arrow" onClick={() => scroll(-1)} disabled={!canScrollLeft}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
-            </button>
-            <button className="fran-browse-arrow" onClick={() => scroll(1)} disabled={!canScrollRight}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div className="fran-browse-scroll" ref={scrollRef} onScroll={checkScroll}>
-          {shows.map(show => (
-            <Link
-              key={show.id}
-              href={`/tv/${show.id}`}
-              className="fran-browse-card"
-            >
-              <img
-                src={`https://image.tmdb.org/t/p/w780${show.backdrop_path}`}
-                alt={show.name}
-                className="fran-browse-card-bg"
-                loading="lazy"
-                onError={hideBrokenImage}
-              />
-              <div className="fran-browse-card-body">
-                <span className="fran-browse-card-name">{show.name}</span>
-                <span className="fran-browse-card-tag">
-                  {show.first_air_date ? show.first_air_date.split('-')[0] : ''}
-                  {show.vote_average > 0 ? ` · ★ ${show.vote_average.toFixed(1)}` : ''}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 export default function BrowsePage() {
   const searchParams = useSearchParams()
@@ -658,7 +568,7 @@ export default function BrowsePage() {
     <main>
       {showHero && <HeroCarousel mediaType={section === 'anime' ? 'anime' : section === 'tv' ? 'tv' : 'movie'} />}
 
-      {showHero && section === 'tv'     && <PopularAnimeRow />}
+
       <div className={`wrapper${showHero ? ' wrapper--after-hero' : ''}`}>
         <section className="all-movies" ref={gridRef}>
           <div className="section-header">
