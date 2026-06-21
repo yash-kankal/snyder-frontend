@@ -956,24 +956,24 @@
   }
 
   .movie-card .rating p {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
     color: white;
   }
 
   .movie-card .content span {
-    font-size: 16px;
+    font-size: 20px;
     color: rgba(156, 164, 171, 0.5);
   }
 
   .movie-card .content .lang {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 500;
     color: rgba(156, 164, 171, 0.85);
   }
 
   .movie-card .content .year {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 500;
     color: rgba(156, 164, 171, 0.85);
   }
