@@ -181,9 +181,7 @@ const Card = memo(function Card({ movie, mediaType = 'movie', showNewBadge = fal
         )}
       </div>
 
-      <div className='mt-4'>
-        <h3>{title}</h3>
-      </div>
+      <h3>{title}</h3>
 
       <div className='content'>
         <div className='rating'>
