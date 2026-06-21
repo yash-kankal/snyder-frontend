@@ -8705,8 +8705,8 @@
 
 .person-lightbox-modal {
   position: relative;
-  background: #141414;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #0f0f26;
+  border: 1px solid rgba(206, 206, 251, 0.12);
   border-radius: 16px;
   padding: 20px 16px 16px;
   max-width: min(500px, 94vw);
@@ -8722,7 +8722,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(206, 206, 251, 0.08);
   border: none;
   border-radius: 50%;
   width: 34px;
@@ -8731,10 +8731,10 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: rgba(255,255,255,0.7);
+  color: rgba(206, 206, 251, 0.6);
   transition: background 0.15s, color 0.15s;
 }
-.person-lightbox-close:hover { background: rgba(255,255,255,0.16); color: #fff; }
+.person-lightbox-close:hover { background: rgba(206, 206, 251, 0.15); color: #fff; }
 .person-lightbox-close svg { width: 18px; height: 18px; }
 
 .person-lightbox-body {
@@ -8748,14 +8748,15 @@
   flex: 1;
   min-width: 0;
   max-height: 72vh;
-  border-radius: 8px;
+  border-radius: 10px;
   object-fit: contain;
   display: block;
+  border: 1px solid rgba(206, 206, 251, 0.08);
 }
 
 .person-lightbox-arrow {
-  background: rgba(255,255,255,0.08);
-  border: none;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.25);
   border-radius: 50%;
   width: 42px;
   height: 42px;
@@ -8764,16 +8765,19 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: rgba(255,255,255,0.7);
-  transition: background 0.15s, color 0.15s;
+  color: #4ade80;
+  transition: background 0.15s, border-color 0.15s;
   flex-shrink: 0;
 }
-.person-lightbox-arrow:hover { background: rgba(255,255,255,0.16); color: #fff; }
+.person-lightbox-arrow:hover {
+  background: rgba(74, 222, 128, 0.2);
+  border-color: rgba(74, 222, 128, 0.5);
+}
 .person-lightbox-arrow svg { width: 22px; height: 22px; }
 
 .person-lightbox-count {
   font-size: 13px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(206, 206, 251, 0.35);
   letter-spacing: 0.04em;
 }
 
