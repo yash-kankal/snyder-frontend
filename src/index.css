@@ -196,6 +196,8 @@
     transition: border-color 0.15s;
     width: 300px;
     max-width: 100%;
+    position: relative;
+    z-index: 101;
   }
 
   .search-bar-input:focus-within {
