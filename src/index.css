@@ -9849,6 +9849,10 @@ select:focus-visible,
 .ep-watched-btn--on {
   opacity: 1 !important;
 }
+/* Always show on touch/mobile where hover doesn't fire */
+@media (hover: none) {
+  .ep-watched-btn { opacity: 1; }
+}
 .ep-watched-btn--on {
   background: rgba(74, 222, 128, 0.2);
   border-color: rgba(74, 222, 128, 0.7);
