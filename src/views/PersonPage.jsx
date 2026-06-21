@@ -506,23 +506,25 @@ export default function PersonPage({ routeId } = {}) {
           {/* Photo lightbox */}
           {lightboxIndex !== null && (
             <div className="person-lightbox" onClick={closeLightbox}>
-              <button className="person-lightbox-close" onClick={closeLightbox} aria-label="Close">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-              <button className="person-lightbox-arrow person-lightbox-arrow--prev" onClick={e => { e.stopPropagation(); prevPhoto() }} aria-label="Previous">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <div className="person-lightbox-img-wrap" onClick={e => e.stopPropagation()}>
-                <img
-                  src={`https://image.tmdb.org/t/p/w780${photos[lightboxIndex].file_path}`}
-                  alt=""
-                  className="person-lightbox-img"
-                />
+              <div className="person-lightbox-modal" onClick={e => e.stopPropagation()}>
+                <button className="person-lightbox-close" onClick={closeLightbox} aria-label="Close">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div className="person-lightbox-body">
+                  <button className="person-lightbox-arrow" onClick={prevPhoto} aria-label="Previous">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <img
+                    src={`https://image.tmdb.org/t/p/w780${photos[lightboxIndex].file_path}`}
+                    alt=""
+                    className="person-lightbox-img"
+                  />
+                  <button className="person-lightbox-arrow" onClick={nextPhoto} aria-label="Next">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
                 <span className="person-lightbox-count">{lightboxIndex + 1} / {photos.length}</span>
               </div>
-              <button className="person-lightbox-arrow person-lightbox-arrow--next" onClick={e => { e.stopPropagation(); nextPhoto() }} aria-label="Next">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
             </div>
           )}
 

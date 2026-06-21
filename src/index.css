@@ -8661,7 +8661,7 @@
 /* ── Person photo gallery ── */
 .person-photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   padding-bottom: 16px;
 }
@@ -8674,6 +8674,7 @@
   aspect-ratio: 2/3;
   background: rgba(255,255,255,0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: block;
 }
 .person-photo-thumb:hover {
   transform: scale(1.04);
@@ -8691,7 +8692,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0,0,0,0.92);
+  background: rgba(0,0,0,0.88);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8702,69 +8703,79 @@
   to   { opacity: 1 }
 }
 
-.person-lightbox-img-wrap {
+.person-lightbox-modal {
   position: relative;
-  max-width: min(480px, 90vw);
-  max-height: 90vh;
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px 16px 16px;
+  max-width: min(500px, 94vw);
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.person-lightbox-img {
-  max-width: 100%;
-  max-height: 85vh;
-  border-radius: 10px;
-  object-fit: contain;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-}
-.person-lightbox-count {
-  margin-top: 10px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 0.05em;
+  gap: 12px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.9);
 }
 
 .person-lightbox-close {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(255,255,255,0.1);
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255,255,255,0.08);
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #fff;
-  transition: background 0.15s;
-  z-index: 1001;
+  color: rgba(255,255,255,0.7);
+  transition: background 0.15s, color 0.15s;
 }
-.person-lightbox-close:hover { background: rgba(255,255,255,0.2); }
-.person-lightbox-close svg { width: 20px; height: 20px; }
+.person-lightbox-close:hover { background: rgba(255,255,255,0.16); color: #fff; }
+.person-lightbox-close svg { width: 18px; height: 18px; }
+
+.person-lightbox-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.person-lightbox-img {
+  flex: 1;
+  min-width: 0;
+  max-height: 72vh;
+  border-radius: 8px;
+  object-fit: contain;
+  display: block;
+}
 
 .person-lightbox-arrow {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   border: none;
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #fff;
-  transition: background 0.15s;
-  z-index: 1001;
+  color: rgba(255,255,255,0.7);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
 }
-.person-lightbox-arrow:hover { background: rgba(255,255,255,0.2); }
-.person-lightbox-arrow svg { width: 24px; height: 24px; }
-.person-lightbox-arrow--prev { left: 16px; }
-.person-lightbox-arrow--next { right: 16px; }
+.person-lightbox-arrow:hover { background: rgba(255,255,255,0.16); color: #fff; }
+.person-lightbox-arrow svg { width: 22px; height: 22px; }
+
+.person-lightbox-count {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.04em;
+}
 
 /* ── People page ── */
 .people-page-grid {
