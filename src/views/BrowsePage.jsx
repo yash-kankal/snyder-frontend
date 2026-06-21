@@ -14,7 +14,7 @@ import { FRANCHISES } from '../data/franchises'
 import { showToast } from '../lib/toast'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useRevealOnScroll } from '../lib/useRevealOnScroll'
-import { getUserReminderIds, addReminder, removeReminder } from '../lib/movieActions'
+import { getUserReminderIds, addReminder, removeReminder, getShowsEpisodeCounts } from '../lib/movieActions'
 import { useAuth } from '../contexts/AuthContext'
 import AuthModal from '../components/AuthModal'
 
@@ -485,6 +485,7 @@ export default function BrowsePage() {
   const [isLoading, setIsLoading]       = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [totalPages, setTotalPages]     = useState(1)
+  const [epProgress, setEpProgress]     = useState(new Map())
 
   // Ref to scroll back to the grid (not the hero) when changing pages
   const gridRef = useRef(null)
@@ -518,6 +519,15 @@ export default function BrowsePage() {
       else      await addReminder(user.id, id, title, item.poster_path, mt, date)
     } catch { setCsReminders(csReminders) }  // revert on error
   }, [user, csReminders, section])
+
+  // ── Episode progress for TV cards ────────────────────────────────────────────
+  useEffect(() => {
+    if (!user || section !== 'tv' || !movieList.length) { setEpProgress(new Map()); return }
+    const showIds = movieList.map(item => String(item.id))
+    getShowsEpisodeCounts(user.id, showIds)
+      .then(counts => setEpProgress(counts))
+      .catch(() => {})
+  }, [user, section, movieList])
 
   // ── Email-verification toast (run once on mount) ───────────────────────────
   useEffect(() => {
@@ -853,7 +863,7 @@ export default function BrowsePage() {
                         />
                       ))
                     : movieList.map(item => (
-                        <Card key={item.id} movie={item} mediaType={item.media_type || (section === 'tv' ? 'tv' : 'movie')} showNewBadge />
+                        <Card key={item.id} movie={item} mediaType={item.media_type || (section === 'tv' ? 'tv' : 'movie')} showNewBadge watchedEpisodes={epProgress.get(String(item.id)) || 0} />
                       ))
                 }
               </ul>

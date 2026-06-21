@@ -10,7 +10,7 @@ import { cachedFetch, TTL } from '../lib/apiCache'
 import { scrollToTop, scrollToElement } from '../lib/lenisScroll'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserSavedMovieIds, getUserFavoriteIds, addToFavorites, removeFromFavorites, getWatchedIds, addToWatched, removeFromWatched } from '../lib/movieActions'
+import { getUserSavedMovieIds, getUserFavoriteIds, addToFavorites, removeFromFavorites, getWatchedIds, addToWatched, removeFromWatched, getShowEpisodeProgress, markEpisodeWatched, markEpisodeUnwatched } from '../lib/movieActions'
 import { showToast } from '../lib/toast'
 import PlaylistPicker from '../components/PlaylistPicker'
 import VideoGallery, { sortVideos } from '../components/VideoGallery'
@@ -134,7 +134,7 @@ const KEY_CREW_JOBS = new Set(CREW_JOB_ORDER)
 const IS_HOVER_DEVICE = typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
 // ── Seasons panel ─────────────────────────────────────────────────────────────
-function SeasonsPanel({ showId, seasons }) {
+function SeasonsPanel({ showId, seasons, user }) {
   const mainSeasons = seasons.filter(s => s.season_number > 0)
   const firstSn     = mainSeasons[0]?.season_number ?? 1
 
@@ -148,6 +148,39 @@ function SeasonsPanel({ showId, seasons }) {
   const hideTimerRef                = useRef(null)
   const lastEpRef                   = useRef(null)
   if (activeEp) lastEpRef.current   = activeEp
+
+  const [watchedEps, setWatchedEps] = useState(new Set())
+
+  useEffect(() => {
+    if (!user) { setWatchedEps(new Set()); return }
+    getShowEpisodeProgress(user.id, showId)
+      .then(eps => setWatchedEps(eps))
+      .catch(() => {})
+  }, [user, showId])
+
+  const toggleEpisode = useCallback(async (ep, e) => {
+    e.stopPropagation()
+    if (!user) return
+    const key = `S${activeSn}E${ep.episode_number}`
+    const nowWatched = !watchedEps.has(key)
+    setWatchedEps(prev => {
+      const next = new Set(prev)
+      if (nowWatched) next.add(key)
+      else next.delete(key)
+      return next
+    })
+    try {
+      if (nowWatched) await markEpisodeWatched(user.id, showId, activeSn, ep.episode_number)
+      else            await markEpisodeUnwatched(user.id, showId, activeSn, ep.episode_number)
+    } catch {
+      setWatchedEps(prev => {
+        const next = new Set(prev)
+        if (nowWatched) next.delete(key)
+        else next.add(key)
+        return next
+      })
+    }
+  }, [user, showId, activeSn, watchedEps])
 
   const showPanel = (ep) => {
     clearTimeout(hideTimerRef.current)
@@ -191,9 +224,10 @@ function SeasonsPanel({ showId, seasons }) {
 
   if (mainSeasons.length === 0) return null
 
-  const activeSeason = mainSeasons.find(s => s.season_number === activeSn)
-  const episodes     = seasonData[activeSn]?.episodes || []
-  const isLoading    = loading === activeSn
+  const activeSeason   = mainSeasons.find(s => s.season_number === activeSn)
+  const episodes       = seasonData[activeSn]?.episodes || []
+  const isLoading      = loading === activeSn
+  const watchedInSeason = episodes.filter(ep => watchedEps.has(`S${activeSn}E${ep.episode_number}`)).length
 
   const scrollEps      = (dir) => scrollRef.current?.scrollBy({ left: dir * 620, behavior: 'smooth' })
   const scrollSeasons  = (dir) => seasonTabsRef.current?.scrollBy({ left: dir * 300, behavior: 'smooth' })
@@ -236,6 +270,12 @@ function SeasonsPanel({ showId, seasons }) {
             {activeSeason.vote_average > 0 && (
               <span className="season-panel-rating">★ {activeSeason.vote_average.toFixed(1)}</span>
             )}
+            {user && episodes.length > 0 && watchedInSeason > 0 && (
+              <span className="season-progress-chip">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="10" height="10"><polyline points="2 8 6 12 14 4"/></svg>
+                {watchedInSeason} / {episodes.length} watched
+              </span>
+            )}
           </div>
         )}
         <div className="ep-arrows">
@@ -261,38 +301,53 @@ function SeasonsPanel({ showId, seasons }) {
       ) : (
         <>
           <div className="ep-scroll" ref={scrollRef}>
-            {episodes.map(ep => (
-              <div
-                key={ep.id}
-                className={`ep-card${activeEp?.id === ep.id ? ' ep-card--active' : ''}`}
-                onMouseEnter={IS_HOVER_DEVICE && ep.overview ? () => showPanel(ep) : undefined}
-                onMouseLeave={IS_HOVER_DEVICE && ep.overview ? () => hidePanel() : undefined}
-                onClick={() => activeEp?.id === ep.id ? hidePanel() : showPanel(ep)}
-              >
-                <div className="ep-thumb">
-                  <img
-                    src={ep.still_path
-                      ? `https://image.tmdb.org/t/p/w300/${ep.still_path}`
-                      : '/No-Poster.png'}
-                    alt={ep.name}
-                    loading="lazy"
-                  />
-                  <div className="ep-thumb-overlay">
-                    <span className="ep-num">E{ep.episode_number}</span>
-                    <span className="ep-thumb-name">{ep.name}</span>
-                  </div>
-                  {ep.vote_average > 0 && ep.vote_count > 10 && (
-                    <div className="ep-rating">
-                      <svg viewBox="0 0 20 20" fill="#f5c518"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                      {ep.vote_average.toFixed(1)}
+            {episodes.map(ep => {
+              const epWatched = watchedEps.has(`S${activeSn}E${ep.episode_number}`)
+              return (
+                <div
+                  key={ep.id}
+                  className={`ep-card${activeEp?.id === ep.id ? ' ep-card--active' : ''}${epWatched ? ' ep-card--watched' : ''}`}
+                  onMouseEnter={IS_HOVER_DEVICE && ep.overview ? () => showPanel(ep) : undefined}
+                  onMouseLeave={IS_HOVER_DEVICE && ep.overview ? () => hidePanel() : undefined}
+                  onClick={() => activeEp?.id === ep.id ? hidePanel() : showPanel(ep)}
+                >
+                  <div className="ep-thumb">
+                    <img
+                      src={ep.still_path
+                        ? `https://image.tmdb.org/t/p/w300/${ep.still_path}`
+                        : '/No-Poster.png'}
+                      alt={ep.name}
+                      loading="lazy"
+                    />
+                    <div className="ep-thumb-overlay">
+                      <span className="ep-num">E{ep.episode_number}</span>
+                      <span className="ep-thumb-name">{ep.name}</span>
                     </div>
+                    {ep.vote_average > 0 && ep.vote_count > 10 && (
+                      <div className="ep-rating">
+                        <svg viewBox="0 0 20 20" fill="#f5c518"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        {ep.vote_average.toFixed(1)}
+                      </div>
+                    )}
+                    {user && (
+                      <button
+                        className={`ep-watched-btn${epWatched ? ' ep-watched-btn--on' : ''}`}
+                        onClick={(e) => toggleEpisode(ep, e)}
+                        aria-label={epWatched ? 'Mark unwatched' : 'Mark watched'}
+                        title={epWatched ? 'Mark as unwatched' : 'Mark as watched'}
+                      >
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="2 8 6 12 14 4"/>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  {ep.runtime > 0 && (
+                    <span className="ep-runtime">{ep.runtime}m</span>
                   )}
                 </div>
-                {ep.runtime > 0 && (
-                  <span className="ep-runtime">{ep.runtime}m</span>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
           {(activeEp || panelHiding) && (() => {
             const ep = lastEpRef.current
@@ -384,6 +439,7 @@ export default function TVDetails({ routeId } = {}) {
   const [error, setError]             = useState('')
   const [recs, setRecs]               = useState([])
   const [tmdbReviews, setTmdbReviews] = useState([])
+  const [externalIds, setExternalIds] = useState(null)
   const recsRef                       = useRef(null)
   const [showPoster, setShowPoster]     = useState(false)
   const [mounted,    setMounted]        = useState(false)
@@ -453,7 +509,7 @@ export default function TVDetails({ routeId } = {}) {
       try {
         // One request via append_to_response — 5× fewer round trips.
         const data = await cachedFetch(
-          `${API_BASE_URL}/tv/${id}?append_to_response=credits,videos,images,content_ratings,watch/providers,recommendations,reviews&include_image_language=en,null`,
+          `${API_BASE_URL}/tv/${id}?append_to_response=credits,videos,images,content_ratings,watch/providers,recommendations,reviews,external_ids&include_image_language=en,null`,
           API_OPTIONS, TTL.detail
         )
         if (cancelled) return
@@ -495,6 +551,7 @@ export default function TVDetails({ routeId } = {}) {
         setImages(backdrops)
         setRecs((data.recommendations?.results || []).filter(r => r.poster_path).slice(0, 10))
         setTmdbReviews(data.reviews?.results || [])
+        setExternalIds(data.external_ids || null)
       } catch {
         if (!cancelled) setError('Could not load show details.')
       } finally {
@@ -829,12 +886,37 @@ export default function TVDetails({ routeId } = {}) {
 
         {/* ── Seasons & Episodes ── */}
         {show.seasons?.length > 0 && (
-          <SeasonsPanel showId={id} seasons={show.seasons} />
+          <SeasonsPanel showId={id} seasons={show.seasons} user={user} />
         )}
 
         {/* ── Video Gallery ── */}
         <VideoGallery videos={videos} />
         <ImageGallery images={images} />
+
+        {/* ── External Links ── */}
+        {externalIds && (externalIds.imdb_id || externalIds.tvdb_id) && (
+          <div className="detail-card detail-external-links">
+            <span className="detail-card-label">Find on</span>
+            <div className="detail-ext-links-row">
+              {externalIds.imdb_id && (
+                <a href={`https://www.imdb.com/title/${externalIds.imdb_id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link person-ext-link--imdb">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.31 9.588v.005c-.077-.048-.227-.07-.42-.07v4.972c.22 0 .372-.028.44-.09.068-.06.108-.262.108-.673V10.29c0-.394-.04-.636-.128-.702zM22 4H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-14.5 9.5h-1.5v-5h1.5v5zm3 0H9v-5h1.5v1.5H12V8.5h1.5v5zm4.5 0h-1.388l-.056-.34c-.288.27-.616.404-.984.404-.476 0-.807-.16-.993-.482-.11-.19-.163-.497-.163-.92V9.357c0-.405.056-.7.17-.886.19-.31.525-.466 1.005-.466.36 0 .683.126.965.378V8.5H15v5zm3.5 0h-3v-5h1.5v3.5H19v1.5z"/></svg>
+                  IMDB
+                </a>
+              )}
+              <a href={`https://www.themoviedb.org/tv/${id}`} target="_blank" rel="noopener noreferrer" className="person-ext-link">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                TMDB
+              </a>
+              {externalIds.imdb_id && (
+                <a href={`https://letterboxd.com/search/films/${encodeURIComponent(show?.name || '')}/`} target="_blank" rel="noopener noreferrer" className="person-ext-link">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm-1 14.5l-4-2.5 4-2.5v5zm2 0V11.5l4 2.5-4 2.5z"/></svg>
+                  Letterboxd
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── Cast ── */}
         {cast.length > 0 && (

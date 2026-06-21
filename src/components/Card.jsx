@@ -36,7 +36,7 @@ function formatDate(dateStr) {
   return `${day} ${MONTHS[month - 1]}, ${year}`
 }
 
-const Card = memo(function Card({ movie, mediaType = 'movie', showNewBadge = false }) {
+const Card = memo(function Card({ movie, mediaType = 'movie', showNewBadge = false, watchedEpisodes = 0 }) {
   const { user } = useAuth()
   const [thumbLoaded, setThumbLoaded] = useState(false)
   const [fullLoaded, setFullLoaded]   = useState(false)
@@ -101,6 +101,12 @@ const Card = memo(function Card({ movie, mediaType = 'movie', showNewBadge = fal
       {/* Fixed 2:3 container — never collapses while image loads */}
       <div className='card-img-wrap'>
         {isNew && <span className="card-new-badge">NEW</span>}
+        {watchedEpisodes > 0 && (
+          <span className="card-ep-progress">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="9" height="9"><polyline points="1 6 4.5 9.5 11 3"/></svg>
+            {watchedEpisodes} ep{watchedEpisodes !== 1 ? 's' : ''}
+          </span>
+        )}
         {/* Skeleton — shows until at least thumb is loaded */}
         {!fullLoaded && !thumbLoaded && <div className='card-img-skeleton' />}
 

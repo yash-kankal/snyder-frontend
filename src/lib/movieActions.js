@@ -458,6 +458,70 @@ export async function getWatched(userId) {
   return data || []
 }
 
+// ── Episode Progress ──────────────────────────────────────────────────────────
+
+/** Key used in the per-show episode progress cache. */
+const epKey = (userId, showId) => `ep:${userId}:${showId}`
+
+/** Returns a Set of "S{n}E{n}" strings for episodes the user has watched. */
+export async function getShowEpisodeProgress(userId, showId) {
+  return dedupedQuery(epKey(userId, showId), async () => {
+    const { data, error } = await supabase
+      .from('episode_progress')
+      .select('season_number, episode_number')
+      .eq('user_id', userId)
+      .eq('show_id', String(showId))
+    if (error) throw error
+    return new Set((data || []).map(r => `S${r.season_number}E${r.episode_number}`))
+  })
+}
+
+export async function markEpisodeWatched(userId, showId, seasonNumber, episodeNumber) {
+  const { error } = await supabase
+    .from('episode_progress')
+    .upsert(
+      { user_id: userId, show_id: String(showId), season_number: seasonNumber, episode_number: episodeNumber },
+      { onConflict: 'user_id,show_id,season_number,episode_number' }
+    )
+  if (error) throw error
+  const key = epKey(userId, showId)
+  const cached = cacheGet(key)
+  if (cached) cached.add(`S${seasonNumber}E${episodeNumber}`)
+}
+
+export async function markEpisodeUnwatched(userId, showId, seasonNumber, episodeNumber) {
+  const { error } = await supabase
+    .from('episode_progress')
+    .delete()
+    .eq('user_id', userId)
+    .eq('show_id', String(showId))
+    .eq('season_number', seasonNumber)
+    .eq('episode_number', episodeNumber)
+  if (error) throw error
+  const key = epKey(userId, showId)
+  const cached = cacheGet(key)
+  if (cached) cached.delete(`S${seasonNumber}E${episodeNumber}`)
+}
+
+/**
+ * Batch-fetch watched episode counts for multiple shows.
+ * Returns a Map<showId, watchedCount>.
+ */
+export async function getShowsEpisodeCounts(userId, showIds) {
+  if (!showIds.length) return new Map()
+  const { data, error } = await supabase
+    .from('episode_progress')
+    .select('show_id')
+    .eq('user_id', userId)
+    .in('show_id', showIds.map(String))
+  if (error) throw error
+  const counts = new Map()
+  for (const row of (data || [])) {
+    counts.set(row.show_id, (counts.get(row.show_id) || 0) + 1)
+  }
+  return counts
+}
+
 // ── Comments ─────────────────────────────────────────────────────────────────
 
 export async function getComments(movieId) {

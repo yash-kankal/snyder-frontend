@@ -9,6 +9,8 @@ import { API_BASE_URL, API_OPTIONS } from '../config'
 import { cachedFetch, prefetch, getCached, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useRevealOnScroll } from '../lib/useRevealOnScroll'
+import { useAuth } from '../contexts/AuthContext'
+import { getShowsEpisodeCounts } from '../lib/movieActions'
 
 const SORT_OPTIONS = [
   { value: 'popularity.desc',    label: 'Most Popular' },
@@ -26,6 +28,7 @@ function getEndpoint(page, sort) {
 export default function AnimePage() {
   const router = useRouter()
   usePageMeta('Anime')
+  const { user } = useAuth()
 
   const [animeList, setAnimeList]   = useState([])
   const [isLoading, setIsLoading]   = useState(false)
@@ -33,6 +36,7 @@ export default function AnimePage() {
   const [page, setPage]             = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [sort, setSort]             = useState('popularity.desc')
+  const [epProgress, setEpProgress] = useState(new Map())
 
   const listRef = useRef(null)
   useRevealOnScroll(listRef, [animeList, isLoading])
@@ -63,6 +67,14 @@ export default function AnimePage() {
       .catch(() => setError('Failed to load anime. Please try again.'))
       .finally(() => setIsLoading(false))
   }, [page, sort])
+
+  useEffect(() => {
+    if (!user || !animeList.length) { setEpProgress(new Map()); return }
+    const showIds = animeList.map(item => String(item.id))
+    getShowsEpisodeCounts(user.id, showIds)
+      .then(counts => setEpProgress(counts))
+      .catch(() => {})
+  }, [user, animeList])
 
   return (
     <main>
@@ -116,7 +128,7 @@ export default function AnimePage() {
                 {isLoading
                   ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
                   : animeList.map(item => (
-                      <Card key={item.id} movie={item} mediaType="tv" showNewBadge />
+                      <Card key={item.id} movie={item} mediaType="tv" showNewBadge watchedEpisodes={epProgress.get(String(item.id)) || 0} />
                     ))
                 }
               </ul>
