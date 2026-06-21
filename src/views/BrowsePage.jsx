@@ -853,7 +853,7 @@ export default function BrowsePage() {
                         />
                       ))
                     : movieList.map(item => (
-                        <Card key={item.id} movie={item} mediaType={item.media_type || (section === 'tv' ? 'tv' : 'movie')} />
+                        <Card key={item.id} movie={item} mediaType={item.media_type || (section === 'tv' ? 'tv' : 'movie')} showNewBadge />
                       ))
                 }
               </ul>

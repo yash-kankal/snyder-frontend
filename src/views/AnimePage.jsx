@@ -116,7 +116,7 @@ export default function AnimePage() {
                 {isLoading
                   ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
                   : animeList.map(item => (
-                      <Card key={item.id} movie={item} mediaType="tv" />
+                      <Card key={item.id} movie={item} mediaType="tv" showNewBadge />
                     ))
                 }
               </ul>
