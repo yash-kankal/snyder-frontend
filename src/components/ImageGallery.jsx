@@ -61,11 +61,6 @@ const ImageGallery = memo(function ImageGallery({ images }) {
       {mounted && isOpen && createPortal(
         <div className="person-lightbox" onClick={closeLightbox}>
           <div className="person-lightbox-modal person-lightbox-modal--wide" onClick={e => e.stopPropagation()}>
-            <button className="person-lightbox-close" onClick={closeLightbox} aria-label="Close">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
             <div className="person-lightbox-body">
               <button className="person-lightbox-arrow" onClick={e => { e.stopPropagation(); prev() }} aria-label="Previous">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -81,6 +76,11 @@ const ImageGallery = memo(function ImageGallery({ images }) {
               </button>
             </div>
             <span className="person-lightbox-count">{lightboxIdx + 1} / {images.length}</span>
+            <button className="person-lightbox-close" onClick={closeLightbox} aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
         </div>,
         document.body
