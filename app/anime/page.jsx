@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import AnimePage from '../../src/views/AnimePage'
+import BrowsePage from '../../src/views/BrowsePage'
 import { createPageMetadata } from '../../src/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -11,5 +11,5 @@ export const metadata = createPageMetadata({
 })
 
 export default function Anime() {
-  return <Suspense><AnimePage /></Suspense>
+  return <Suspense><BrowsePage defaultSection="anime" basePath="/anime" /></Suspense>
 }

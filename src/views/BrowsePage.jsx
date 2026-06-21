@@ -309,18 +309,26 @@ function PopularTVRow() {
 }
 
 
-export default function BrowsePage() {
+const ANIME_SORT_OPTIONS = [
+  { value: 'popularity.desc',     label: 'Most Popular' },
+  { value: 'vote_average.desc',   label: 'Highest Rated' },
+  { value: 'first_air_date.desc', label: 'Newest First' },
+  { value: 'first_air_date.asc',  label: 'Oldest First' },
+]
+
+export default function BrowsePage({ defaultSection = 'movies', basePath = '/browse' }) {
   const searchParams = useSearchParams()
   const router = useRouter()
 
   // ── All filter state lives in the URL so browser back restores everything ──
-  const section    = searchParams.get('section')    || 'movies'
+  const section    = searchParams.get('section')    || defaultSection
   const urlQuery   = searchParams.get('q')          || ''
   const genre      = searchParams.get('genre')      || ''
   const provider   = searchParams.get('provider')   || ''
   const ratingSort = searchParams.get('ratingSort') || ''
   const language   = searchParams.get('language')   || ''
   const tab        = searchParams.get('tab')        || 'now_playing'
+  const animeSort  = searchParams.get('animeSort')  || 'popularity.desc'
   const page       = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
 
   // Use the provider's own region so US platforms (Hulu, HBO Max, etc.) return results
@@ -381,7 +389,7 @@ export default function BrowsePage() {
       showToast('Email successfully verified!')
       const next = new URLSearchParams(searchParams.toString())
       next.delete('verified')
-      router.replace(`/browse?${next.toString()}`, { scroll: false })
+      router.replace(`${basePath}?${next.toString()}`, { scroll: false })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -391,21 +399,21 @@ export default function BrowsePage() {
     const next = new URLSearchParams(searchParams.toString())
     val ? next.set(key, val) : next.delete(key)
     next.delete('page')
-    router.replace(`/browse?${next.toString()}`, { scroll: false })
-  }, [searchParams, router])
+    router.replace(`${basePath}?${next.toString()}`, { scroll: false })
+  }, [searchParams, router, basePath])
 
   const handleTabChange = useCallback((newTab) => {
     const next = new URLSearchParams(searchParams.toString())
     newTab === 'now_playing' ? next.delete('tab') : next.set('tab', newTab)
     if (newTab === 'coming_soon' || newTab === 'now_playing') { next.delete('ratingSort') }
     next.delete('page')
-    router.replace(`/browse?${next.toString()}`, { scroll: false })
-  }, [searchParams, router])
+    router.replace(`${basePath}?${next.toString()}`, { scroll: false })
+  }, [searchParams, router, basePath])
 
   const handlePageChange = useCallback((p) => {
     const next = new URLSearchParams(searchParams.toString())
     p <= 1 ? next.delete('page') : next.set('page', String(p))
-    router.replace(`/browse?${next.toString()}`, { scroll: false })
+    router.replace(`${basePath}?${next.toString()}`, { scroll: false })
     // Scroll so the tabs sit just below the fixed navbar (~72px)
     if (gridRef.current) {
       const top = gridRef.current.getBoundingClientRect().top + window.scrollY - 88
@@ -419,7 +427,10 @@ export default function BrowsePage() {
 
     // ── Anime: parallel movie + TV fetch, combined by popularity ──────────────
     if (section === 'anime' && !urlQuery) {
-      const base = `with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=${page}`
+      const animeSortBy = animeSort || 'popularity.desc'
+      const minVotes = animeSortBy === 'vote_average.desc' ? '&vote_count.gte=100' : ''
+      const providerParam = provider ? `&with_watch_providers=${provider}&watch_region=${providerRegion}` : ''
+      const base = `with_genres=16&with_origin_country=JP&sort_by=${animeSortBy}&page=${page}${minVotes}${providerParam}`
       const onlyMovies = tab === 'anime_movies'
       const onlyTV     = tab === 'anime_tv'
       const movieUrl = `${API_BASE_URL}/discover/movie?${base}`
@@ -553,9 +564,9 @@ export default function BrowsePage() {
       .finally(() => { if (!cancelled) setIsLoading(false) })
 
     return () => { cancelled = true }
-  }, [section, urlQuery, page, ratingSort, provider, genre, tab, language, providerRegion])
+  }, [section, urlQuery, page, ratingSort, provider, genre, tab, language, providerRegion, animeSort])
 
-  const showFilters = !urlQuery && section !== 'anime'
+  const showFilters = !urlQuery
   const showHero    = (section === 'movies' || section === 'tv' || section === 'anime') && !urlQuery
 
   usePageMeta(
@@ -618,7 +629,40 @@ export default function BrowsePage() {
             )}
 
             <div className="section-header-right">
-              {showFilters && (
+              {showFilters && section === 'anime' && (
+                <>
+                  {/* Anime sort */}
+                  <div className="country-filter-wrap">
+                    <svg className="country-filter-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/>
+                    </svg>
+                    <select className="country-filter" value={animeSort}
+                      onChange={e => setFilter('animeSort', e.target.value)}>
+                      {ANIME_SORT_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                    <svg className="country-filter-chevron" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+
+                  {/* Streaming platform */}
+                  <div className="country-filter-wrap">
+                    <svg className="country-filter-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+                    </svg>
+                    <select className="country-filter" value={provider}
+                      onChange={e => setFilter('provider', e.target.value)}>
+                      {PROVIDERS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                    </select>
+                    <svg className="country-filter-chevron" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                </>
+              )}
+              {showFilters && section !== 'anime' && (
                 <>
                   {/* Genre */}
                   <div className="country-filter-wrap">
@@ -685,7 +729,6 @@ export default function BrowsePage() {
                     </svg>
                   </div>
                   )}
-
                 </>
               )}
             </div>
