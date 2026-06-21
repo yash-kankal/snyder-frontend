@@ -10,7 +10,7 @@ import HeroCarousel from '../components/HeroCarousel'
 import Footer from '../components/Footer'
 import { API_BASE_URL, API_OPTIONS, WATCH_REGION } from '../config'
 import { cachedFetch, prefetch, getCached, TTL } from '../lib/apiCache'
-import { FRANCHISES } from '../data/franchises'
+
 import { showToast } from '../lib/toast'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useRevealOnScroll } from '../lib/useRevealOnScroll'
@@ -226,70 +226,6 @@ function processPage(data) {
   }
 }
 
-function FranchisesRow() {
-  const scrollRef = useRef(null)
-  const [canScrollLeft,  setCanScrollLeft]  = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-
-  const checkScroll = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    setCanScrollLeft(el.scrollLeft > 4)
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
-  }, [])
-  const scroll = (dir) => scrollRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
-
-  return (
-    <div className="fran-browse-section">
-      <div className="fran-browse-inner">
-        <div className="fran-browse-header">
-          <div className="fran-browse-header-left">
-            <h2 className="fran-browse-title">Popular Franchises</h2>
-            <Link href="/franchises" className="fran-browse-see-all">
-              See All <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 14, height: 14, display: 'inline', verticalAlign: 'middle' }}><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/></svg>
-            </Link>
-          </div>
-          <div className="fran-browse-nav">
-            <button className="fran-browse-arrow" onClick={() => scroll(-1)} disabled={!canScrollLeft}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
-            </button>
-            <button className="fran-browse-arrow" onClick={() => scroll(1)} disabled={!canScrollRight}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div className="fran-browse-scroll" ref={scrollRef} onScroll={checkScroll}>
-          {FRANCHISES.map(fr => (
-            <Link
-              key={fr.slug}
-              href={`/franchise/${fr.slug}`}
-              className="fran-browse-card"
-              style={{ '--fran-color': fr.color }}
-            >
-              {fr.backdrop && (
-                <img
-                  src={`https://image.tmdb.org/t/p/w780${fr.backdrop}`}
-	                  alt=""
-	                  className="fran-browse-card-bg"
-	                  loading="lazy"
-	                  onError={hideBrokenImage}
-	                />
-              )}
-              <div className="fran-browse-card-body">
-                <span className="fran-browse-card-name">{fr.name}</span>
-                <span className="fran-browse-card-tag">{fr.tagline}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function PopularTVRow() {
   const scrollRef = useRef(null)
@@ -721,7 +657,7 @@ export default function BrowsePage() {
   return (
     <main>
       {showHero && <HeroCarousel mediaType={section === 'anime' ? 'anime' : section === 'tv' ? 'tv' : 'movie'} />}
-      {showHero && section === 'movies' && <FranchisesRow />}
+
       {showHero && section === 'tv'     && <PopularAnimeRow />}
       <div className={`wrapper${showHero ? ' wrapper--after-hero' : ''}`}>
         <section className="all-movies" ref={gridRef}>
