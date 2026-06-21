@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Spinner from '../components/Spinner'
 import Card from '../components/Card'
@@ -8,7 +8,7 @@ import { cachedFetch, TTL } from '../lib/apiCache'
 import { usePageMeta } from '../lib/usePageMeta'
 import ErrorState from '../components/ErrorState'
 
-const FILMOGRAPHY_TABS = ['Known For', 'Films', 'TV Shows', 'Directed']
+const FILMOGRAPHY_TABS = ['Known For', 'Films', 'TV Shows', 'Directed', 'Photos']
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -42,6 +42,8 @@ export default function PersonPage({ routeId } = {}) {
   const [photoLoaded, setPhotoLoaded] = useState(false)
   const [wikipediaUrl, setWikipediaUrl] = useState(null)
   const [bioExpanded, setBioExpanded] = useState(false)
+  const [photos, setPhotos] = useState([])
+  const [lightboxIndex, setLightboxIndex] = useState(null)
 
   // Lock page scroll on desktop only
   useEffect(() => {
@@ -65,11 +67,15 @@ export default function PersonPage({ routeId } = {}) {
       try {
         // Fetch both movie + TV credits in one request
         const data = await cachedFetch(
-          `${API_BASE_URL}/person/${id}?append_to_response=combined_credits,external_ids`,
+          `${API_BASE_URL}/person/${id}?append_to_response=combined_credits,external_ids,images`,
           API_OPTIONS, TTL.detail
         )
         if (cancelled) return
         setPerson(data)
+
+        const profiles = (data.images?.profiles || [])
+          .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))
+        setPhotos(profiles)
 
         // Fetch Wikipedia URL from Wikidata if available
         const wikidataId = data.external_ids?.wikidata_id
@@ -186,6 +192,21 @@ export default function PersonPage({ routeId } = {}) {
     fetchPerson()
     return () => { cancelled = true }
   }, [id])
+
+  const closeLightbox = useCallback(() => setLightboxIndex(null), [])
+  const prevPhoto = useCallback(() => setLightboxIndex(i => (i - 1 + photos.length) % photos.length), [photos.length])
+  const nextPhoto = useCallback(() => setLightboxIndex(i => (i + 1) % photos.length), [photos.length])
+
+  useEffect(() => {
+    if (lightboxIndex === null) return
+    const handler = (e) => {
+      if (e.key === 'Escape') closeLightbox()
+      if (e.key === 'ArrowLeft') prevPhoto()
+      if (e.key === 'ArrowRight') nextPhoto()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [lightboxIndex, closeLightbox, prevPhoto, nextPhoto])
 
   const sortFn = (dateKeys) => (a, b) => {
     const da = dateKeys.map(k => a[k] || '').find(v => v) || ''
@@ -390,6 +411,7 @@ export default function PersonPage({ routeId } = {}) {
                 <div className="browse-tabs" style={{ marginBottom: 12, justifyContent: 'center' }}>
                   {FILMOGRAPHY_TABS.filter(tab => {
                     if (tab === 'Directed') return filmDirected.length > 0
+                    if (tab === 'Photos') return photos.length > 0
                     return true
                   }).map(tab => (
                     <button
@@ -402,8 +424,8 @@ export default function PersonPage({ routeId } = {}) {
                   ))}
                 </div>
 
-                {/* Sort toggle — below tabs, all tabs */}
-                <div className="person-sort-toggle">
+                {/* Sort toggle — hidden on Photos tab */}
+                <div className="person-sort-toggle" style={{ visibility: activeTab === 'Photos' ? 'hidden' : 'visible' }}>
                   <button
                     className={`person-sort-btn${sortOrder === 'desc' ? ' person-sort-btn--active' : ''}`}
                     onClick={() => setSortOrder('desc')}
@@ -458,9 +480,51 @@ export default function PersonPage({ routeId } = {}) {
                       </div>
                     : <p className="person-bio" style={{ opacity: 0.5 }}>No directing credits found.</p>
                 )}
+
+                {activeTab === 'Photos' && photos.length > 0 && (
+                  <div className="person-photos-grid">
+                    {photos.map((photo, i) => (
+                      <button
+                        key={photo.file_path}
+                        className="person-photo-thumb"
+                        onClick={() => setLightboxIndex(i)}
+                        aria-label={`View photo ${i + 1}`}
+                      >
+                        <img
+                          src={`https://image.tmdb.org/t/p/w185${photo.file_path}`}
+                          alt=""
+                          loading="lazy"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Photo lightbox */}
+          {lightboxIndex !== null && (
+            <div className="person-lightbox" onClick={closeLightbox}>
+              <button className="person-lightbox-close" onClick={closeLightbox} aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+              <button className="person-lightbox-arrow person-lightbox-arrow--prev" onClick={e => { e.stopPropagation(); prevPhoto() }} aria-label="Previous">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div className="person-lightbox-img-wrap" onClick={e => e.stopPropagation()}>
+                <img
+                  src={`https://image.tmdb.org/t/p/w780${photos[lightboxIndex].file_path}`}
+                  alt=""
+                  className="person-lightbox-img"
+                />
+                <span className="person-lightbox-count">{lightboxIndex + 1} / {photos.length}</span>
+              </div>
+              <button className="person-lightbox-arrow person-lightbox-arrow--next" onClick={e => { e.stopPropagation(); nextPhoto() }} aria-label="Next">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          )}
 
         </div>
       </div>
