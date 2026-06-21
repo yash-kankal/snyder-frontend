@@ -7,52 +7,28 @@ const ImageGallery = memo(function ImageGallery({ images }) {
   const [lightboxIdx, setLightboxIdx] = useState(null)
   const [mounted,     setMounted]     = useState(false)
 
-  const scroll = useCallback((dir) => {
-    scrollRef.current?.scrollBy({ left: dir * 620, behavior: 'smooth' })
-  }, [])
-
-  const openLightbox = useCallback((i) => setLightboxIdx(i), [])
+  const scroll        = useCallback((dir) => { scrollRef.current?.scrollBy({ left: dir * 620, behavior: 'smooth' }) }, [])
   const closeLightbox = useCallback(() => setLightboxIdx(null), [])
-  const prev = useCallback((e) => { e.stopPropagation(); setLightboxIdx(i => Math.max(0, i - 1)) }, [])
-  const next = useCallback((e) => { e.stopPropagation(); setLightboxIdx(i => Math.min(images.length - 1, i + 1)) }, [images.length])
+  const prev          = useCallback(() => setLightboxIdx(i => (i - 1 + images.length) % images.length), [images.length])
+  const next          = useCallback(() => setLightboxIdx(i => (i + 1) % images.length), [images.length])
 
   useEffect(() => { setMounted(true) }, [])
 
-  // Keyboard navigation
   useEffect(() => {
     if (lightboxIdx === null) return
     const onKey = (e) => {
-      if (e.key === 'ArrowLeft')  setLightboxIdx(i => Math.max(0, i - 1))
-      if (e.key === 'ArrowRight') setLightboxIdx(i => Math.min(images.length - 1, i + 1))
-      if (e.key === 'Escape')     setLightboxIdx(null)
+      if (e.key === 'ArrowLeft')  prev()
+      if (e.key === 'ArrowRight') next()
+      if (e.key === 'Escape')     closeLightbox()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [lightboxIdx, images.length])
+  }, [lightboxIdx, prev, next, closeLightbox])
 
   if (!images || images.length === 0) return null
 
-  const isOpen = lightboxIdx !== null
+  const isOpen     = lightboxIdx !== null
   const currentImg = isOpen ? images[lightboxIdx] : null
-
-  const navBtnStyle = {
-    position: 'absolute',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: '44px',
-    height: '44px',
-    borderRadius: '50%',
-    border: 'none',
-    background: 'rgba(255,255,255,0.15)',
-    backdropFilter: 'blur(4px)',
-    color: '#fff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    zIndex: 10000,
-    transition: 'background 0.15s',
-  }
 
   return (
     <>
@@ -75,66 +51,36 @@ const ImageGallery = memo(function ImageGallery({ images }) {
 
         <div className="vg-scroll ig-scroll" ref={scrollRef}>
           {images.map((img, i) => (
-            <div
-              key={img.file_path || i}
-              className="ig-card"
-              onClick={() => openLightbox(i)}
-            >
-              <img
-                src={`https://image.tmdb.org/t/p/w780${img.file_path}`}
-                alt={`Image ${i + 1}`}
-                loading="lazy"
-              />
+            <div key={img.file_path || i} className="ig-card" onClick={() => setLightboxIdx(i)}>
+              <img src={`https://image.tmdb.org/t/p/w780${img.file_path}`} alt={`Image ${i + 1}`} loading="lazy" />
             </div>
           ))}
         </div>
       </div>
 
       {mounted && isOpen && createPortal(
-        <div
-          style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,0.92)', display:'flex', alignItems:'center', justifyContent:'center', padding:'60px 20px' }}
-          onClick={closeLightbox}
-        >
-          {/* X close button */}
-          <button
-            onClick={e => { e.stopPropagation(); closeLightbox() }}
-            style={{ position:'absolute', top:'16px', right:'16px', width:'40px', height:'40px', borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', zIndex:10000 }}
-            aria-label="Close"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="18" height="18">
-              <path d="M18 6 6 18M6 6l12 12"/>
-            </svg>
-          </button>
-
-          {/* Prev arrow */}
-          {lightboxIdx > 0 && (
-            <button onClick={prev} style={{ ...navBtnStyle, left: '12px' }} aria-label="Previous image">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                <path d="M15 18l-6-6 6-6"/>
+        <div className="person-lightbox" onClick={closeLightbox}>
+          <div className="person-lightbox-modal" onClick={e => e.stopPropagation()}>
+            <button className="person-lightbox-close" onClick={closeLightbox} aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
-          )}
-
-          {/* Image */}
-          <img
-            src={`https://image.tmdb.org/t/p/original${currentImg.file_path}`}
-            alt={`Image ${lightboxIdx + 1}`}
-            style={{ maxHeight:'85vh', maxWidth:'90vw', borderRadius:'10px', objectFit:'contain' }}
-            onClick={e => e.stopPropagation()}
-          />
-
-          {/* Next arrow */}
-          {lightboxIdx < images.length - 1 && (
-            <button onClick={next} style={{ ...navBtnStyle, right: '12px' }} aria-label="Next image">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                <path d="M9 18l6-6-6-6"/>
-              </svg>
-            </button>
-          )}
-
-          {/* Counter */}
-          <div style={{ position:'absolute', bottom:'16px', left:'50%', transform:'translateX(-50%)', color:'rgba(255,255,255,0.6)', fontSize:'13px', fontWeight:500, letterSpacing:'0.5px' }}>
-            {lightboxIdx + 1} / {images.length}
+            <div className="person-lightbox-body">
+              <button className="person-lightbox-arrow" onClick={e => { e.stopPropagation(); prev() }} aria-label="Previous">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <img
+                src={`https://image.tmdb.org/t/p/original${currentImg.file_path}`}
+                alt={`Image ${lightboxIdx + 1}`}
+                className="person-lightbox-img"
+                style={{ aspectRatio: currentImg.width && currentImg.height ? `${currentImg.width}/${currentImg.height}` : undefined }}
+              />
+              <button className="person-lightbox-arrow" onClick={e => { e.stopPropagation(); next() }} aria-label="Next">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <span className="person-lightbox-count">{lightboxIdx + 1} / {images.length}</span>
           </div>
         </div>,
         document.body
