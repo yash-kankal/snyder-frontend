@@ -231,6 +231,15 @@ export default function PersonPage({ routeId } = {}) {
   }
 
   const birthday = formatBirthday(person.birthday)
+  const age = (() => {
+    if (!person.birthday) return null
+    const birth = new Date(person.birthday)
+    const end = person.deathday ? new Date(person.deathday) : new Date()
+    const years = end.getFullYear() - birth.getFullYear()
+    const hadBirthday = end.getMonth() > birth.getMonth() ||
+      (end.getMonth() === birth.getMonth() && end.getDate() >= birth.getDate())
+    return hadBirthday ? years : years - 1
+  })()
 
   return (
     <main className="person-page-main">
@@ -286,6 +295,12 @@ export default function PersonPage({ routeId } = {}) {
                   <span className="mob-person-stat-value">{birthday}</span>
                 </div>
               )}
+              {age != null && (
+                <div className="mob-person-stat">
+                  <span className="mob-person-stat-label">Age</span>
+                  <span className="mob-person-stat-value">{age}</span>
+                </div>
+              )}
               {person.place_of_birth && (
                 <div className="mob-person-stat">
                   <span className="mob-person-stat-label">From</span>
@@ -335,6 +350,12 @@ export default function PersonPage({ routeId } = {}) {
                 <div className="person-meta-row">
                   <span className="person-meta-label">Born</span>
                   <span className="person-meta-value">{birthday}</span>
+                </div>
+              )}
+              {age != null && (
+                <div className="person-meta-row">
+                  <span className="person-meta-label">Age</span>
+                  <span className="person-meta-value">{age}</span>
                 </div>
               )}
               {person.place_of_birth && (
