@@ -9679,6 +9679,66 @@ select:focus-visible,
 /* The search input shows focus via its container's border — no inner ring */
 .search-bar-input input:focus-visible { outline: none; }
 
+/* ── Search results filters ── */
+.search-results-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.search-results-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  margin: 0;
+}
+.search-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.search-year-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.search-year-input {
+  width: 72px;
+  height: 34px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+  padding: 0 10px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.search-year-input::-webkit-outer-spin-button,
+.search-year-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.search-year-input::placeholder { color: rgba(255,255,255,0.3); }
+.search-year-input:focus { border-color: rgba(139,92,246,0.6); }
+.search-year-sep {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+}
+.search-filters-clear {
+  height: 34px;
+  padding: 0 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.search-filters-clear:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.85);
+}
+
 /* ── Watch Diary stats bar ── */
 .diary-stats {
   display: flex;

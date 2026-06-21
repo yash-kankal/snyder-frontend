@@ -341,6 +341,16 @@ export default function BrowsePage({ defaultSection = 'movies', basePath = '/bro
   const [totalPages, setTotalPages]     = useState(1)
   const [epProgress, setEpProgress]     = useState(new Map())
 
+  // ── Search-specific client-side filters ──────────────────────────────────
+  const [searchGenre,     setSearchGenre]     = useState('')
+  const [searchMinRating, setSearchMinRating] = useState('')
+  const [searchYearMin,   setSearchYearMin]   = useState('')
+  const [searchYearMax,   setSearchYearMax]   = useState('')
+
+  useEffect(() => {
+    setSearchGenre(''); setSearchMinRating(''); setSearchYearMin(''); setSearchYearMax('')
+  }, [urlQuery])
+
   // Ref to scroll back to the grid (not the hero) when changing pages
   const gridRef = useRef(null)
   const listRef = useRef(null)
@@ -569,6 +579,15 @@ export default function BrowsePage({ defaultSection = 'movies', basePath = '/bro
   const showFilters = !urlQuery
   const showHero    = (section === 'movies' || section === 'tv' || section === 'anime') && !urlQuery
 
+  const displayList = urlQuery ? movieList.filter(item => {
+    if (searchGenre && !item.genre_ids?.includes(Number(searchGenre))) return false
+    if (searchMinRating && (item.vote_average || 0) < Number(searchMinRating)) return false
+    const year = Number((item.release_date || item.first_air_date || '').split('-')[0])
+    if (searchYearMin && year && year < Number(searchYearMin)) return false
+    if (searchYearMax && year && year > Number(searchYearMax)) return false
+    return true
+  }) : movieList
+
   usePageMeta(
     section === 'anime' ? 'Anime'
       : section === 'tv' ? 'TV Shows'
@@ -584,7 +603,51 @@ export default function BrowsePage({ defaultSection = 'movies', basePath = '/bro
         <section className="all-movies" ref={gridRef}>
           <div className="section-header">
             {urlQuery ? (
-              <h2>{getSectionTitle(section, urlQuery, tab)}</h2>
+              <div className="search-results-header">
+                <h2 className="search-results-title">Results for &ldquo;{urlQuery}&rdquo;</h2>
+                <div className="search-filters-row">
+                  <div className="country-filter-wrap">
+                    <svg className="country-filter-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"/>
+                    </svg>
+                    <select className="country-filter" value={searchGenre} onChange={e => setSearchGenre(e.target.value)}>
+                      {MOVIE_GENRES.map(g => <option key={g.id} value={g.id}>{g.label}</option>)}
+                    </select>
+                    <svg className="country-filter-chevron" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
+                  </div>
+                  <div className="country-filter-wrap">
+                    <svg className="country-filter-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    <select className="country-filter" value={searchMinRating} onChange={e => setSearchMinRating(e.target.value)}>
+                      <option value="">Any Rating</option>
+                      <option value="6">6+ Stars</option>
+                      <option value="7">7+ Stars</option>
+                      <option value="8">8+ Stars</option>
+                      <option value="9">9+ Stars</option>
+                    </select>
+                    <svg className="country-filter-chevron" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
+                  </div>
+                  <div className="search-year-range">
+                    <input
+                      type="number" className="search-year-input" placeholder="From"
+                      min="1900" max="2030" value={searchYearMin}
+                      onChange={e => setSearchYearMin(e.target.value)}
+                    />
+                    <span className="search-year-sep">–</span>
+                    <input
+                      type="number" className="search-year-input" placeholder="To"
+                      min="1900" max="2030" value={searchYearMax}
+                      onChange={e => setSearchYearMax(e.target.value)}
+                    />
+                  </div>
+                  {(searchGenre || searchMinRating || searchYearMin || searchYearMax) && (
+                    <button className="search-filters-clear" onClick={() => { setSearchGenre(''); setSearchMinRating(''); setSearchYearMin(''); setSearchYearMax('') }}>
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
             ) : section === 'anime' ? (
               <div className="browse-tabs">
                 <button
@@ -742,7 +805,7 @@ export default function BrowsePage({ defaultSection = 'movies', basePath = '/bro
                 {isLoading
                   ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
                   : tab === 'coming_soon'
-                    ? movieList.map(item => (
+                    ? displayList.map(item => (
                         <ComingSoonCard
                           key={item.id}
                           item={item}
@@ -751,12 +814,12 @@ export default function BrowsePage({ defaultSection = 'movies', basePath = '/bro
                           onRemind={handleCsRemind}
                         />
                       ))
-                    : movieList.map(item => (
+                    : displayList.map(item => (
                         <Card key={item.id} movie={item} mediaType={item.media_type || (section === 'tv' ? 'tv' : 'movie')} showNewBadge watchedEpisodes={epProgress.get(String(item.id)) || 0} />
                       ))
                 }
               </ul>
-              {!isLoading && !errorMessage && movieList.length === 0 && (
+              {!isLoading && !errorMessage && displayList.length === 0 && (
                 <div className="browse-empty">
                   <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="22" cy="22" r="14"/>
