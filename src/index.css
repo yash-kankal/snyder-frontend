@@ -941,8 +941,10 @@
   }
 
   .movie-card .content {
-    @apply flex flex-row items-center flex-wrap gap-1.5 justify-start;
+    @apply flex flex-row items-center gap-1.5 justify-start;
     margin-top: 6px;
+    flex-wrap: nowrap;
+    overflow: hidden;
   }
 
   .movie-card .rating {
