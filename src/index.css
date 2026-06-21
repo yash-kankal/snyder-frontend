@@ -933,7 +933,6 @@
 
   .movie-card h3 {
     @apply text-white font-bold text-base mt-2 line-clamp-2 text-left;
-    min-height: 2.6em;   /* reserve two lines so rows stay aligned */
     line-height: 1.3;
   }
 
