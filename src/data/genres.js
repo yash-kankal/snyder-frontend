@@ -3,7 +3,7 @@
 // genres only exist for one medium — tvId/movieId is null in that case).
 
 export const GENRES = [
-  { slug: 'action',      name: 'Action',      movieId: 28,    tvId: 10759, blurb: 'High-octane action movies and series — fights, chases, and explosions.' },
+  { slug: 'action',      name: 'Action',      movieId: 28,    tvId: 10759, blurb: 'High-octane action movies and series with fights, chases, and explosions.' },
   { slug: 'adventure',   name: 'Adventure',   movieId: 12,    tvId: 10759, blurb: 'Epic journeys and adventure films and shows worth the watch.' },
   { slug: 'animation',   name: 'Animation',   movieId: 16,    tvId: 16,    blurb: 'The best animated movies and series for every age.' },
   { slug: 'comedy',      name: 'Comedy',      movieId: 35,    tvId: 35,    blurb: 'Comedies and sitcoms to make you laugh out loud.' },
@@ -18,7 +18,7 @@ export const GENRES = [
   { slug: 'romance',     name: 'Romance',     movieId: 10749, tvId: null,  blurb: 'Romance films from sweeping epics to rom-coms.' },
   { slug: 'sci-fi',      name: 'Science Fiction', movieId: 878, tvId: 10765, blurb: 'Mind-bending sci-fi movies and series.' },
   { slug: 'thriller',    name: 'Thriller',    movieId: 53,    tvId: null,  blurb: 'Edge-of-your-seat thrillers you won’t be able to pause.' },
-  { slug: 'war',         name: 'War',         movieId: 10752, tvId: 10768, blurb: 'War movies and series — courage, conflict, and history.' },
+  { slug: 'war',         name: 'War',         movieId: 10752, tvId: 10768, blurb: 'War movies and series about courage, conflict, and history.' },
   { slug: 'western',     name: 'Western',     movieId: 37,    tvId: 37,    blurb: 'Classic and modern Westerns across film and TV.' },
   { slug: 'kids',        name: 'Kids',        movieId: null,  tvId: 10762, blurb: 'Kids’ shows that are fun, safe, and endlessly rewatchable.' },
 ]

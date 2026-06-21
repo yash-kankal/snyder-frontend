@@ -2113,6 +2113,8 @@
     color: #fff;
     line-height: 1.1;
     margin: 0;
+    text-align: left;
+    max-width: none;
   }
   /* Header skeleton while company info loads */
   .company-skel-block {

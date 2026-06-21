@@ -11,7 +11,7 @@ const ICON = {
 }
 
 export default function GenresIndexPage() {
-  usePageMeta('Browse by Genre', 'Explore movies and TV shows by genre on CuedUp — action, horror, comedy, sci-fi and more.')
+  usePageMeta('Browse by Genre', 'Explore movies and TV shows by genre on CuedUp: action, horror, comedy, sci-fi and more.')
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (

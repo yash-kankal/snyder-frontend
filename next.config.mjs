@@ -9,12 +9,12 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // All HTML routes — browsers must always fetch fresh from Vercel.
-        // Excludes _next/static (content-hashed JS/CSS — safe to cache forever)
-        // and _next/image (Next.js manages its own image cache headers).
         source: '/((?!_next/static|_next/image).*)',
         headers: [
-          { key: 'Cache-Control', value: 'no-store' },
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, max-age=0, s-maxage=0' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
+          { key: 'Pragma', value: 'no-cache' },
         ],
       },
     ]
