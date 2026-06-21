@@ -8717,6 +8717,12 @@
   gap: 12px;
   box-shadow: 0 32px 80px rgba(0,0,0,0.9);
 }
+.person-lightbox-modal--wide {
+  max-width: min(1100px, 94vw);
+}
+.person-lightbox-modal--wide .person-lightbox-img {
+  max-height: 80vh;
+}
 
 .person-lightbox-close {
   position: absolute;
