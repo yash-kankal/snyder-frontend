@@ -103,6 +103,7 @@ const LANGUAGES = [
   { id: '',   label: 'All Languages' },
   { id: 'en', label: 'English' },
   { id: 'hi', label: 'Hindi' },
+  { id: 'mr', label: 'Marathi' },
   { id: 'ko', label: 'Korean' },
   { id: 'ja', label: 'Japanese' },
   { id: 'es', label: 'Spanish' },

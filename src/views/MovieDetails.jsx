@@ -83,15 +83,39 @@ function WatchProviderList({ providers, title, isInTheatres, compact = false }) 
   }
 
   if (isInTheatres) {
+    const fandangoUrl = `https://www.fandango.com/search?q=${encodeURIComponent(title)}`
+    if (compact) {
+      return (
+        <div className="mob-theatres-wrap">
+          <span className="mob-stat-value mob-stat-theatres">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+              <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/>
+              <path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 3.9"/>
+              <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
+            </svg>
+            In Theatres
+          </span>
+          <a href={fandangoUrl} target="_blank" rel="noopener noreferrer" className="fandango-btn fandango-btn--compact">
+            Get Tickets →
+          </a>
+        </div>
+      )
+    }
     return (
-      <p className={compact ? 'mob-stat-value mob-stat-theatres' : 'watch-unavailable watch-unavailable--theatres'}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-          <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/>
-          <path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 3.9"/>
-          <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
-        </svg>
-        Currently in Theatres
-      </p>
+      <div className="theatres-wrap">
+        <p className="watch-unavailable watch-unavailable--theatres">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+            <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/>
+            <path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 3.9"/>
+            <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
+          </svg>
+          Currently in Theatres
+        </p>
+        <a href={fandangoUrl} target="_blank" rel="noopener noreferrer" className="fandango-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+          Get Tickets on Fandango
+        </a>
+      </div>
     )
   }
 

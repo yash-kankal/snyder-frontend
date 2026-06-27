@@ -19,7 +19,7 @@ const MONTHS = [
 const LANGUAGES = {
   en: 'English', fr: 'French', es: 'Spanish', de: 'German', it: 'Italian',
   pt: 'Portuguese', ru: 'Russian', ja: 'Japanese', ko: 'Korean', zh: 'Chinese',
-  hi: 'Hindi', ar: 'Arabic', tr: 'Turkish', pl: 'Polish', nl: 'Dutch',
+  hi: 'Hindi', mr: 'Marathi', ar: 'Arabic', tr: 'Turkish', pl: 'Polish', nl: 'Dutch',
   sv: 'Swedish', da: 'Danish', fi: 'Finnish', no: 'Norwegian', th: 'Thai',
   id: 'Indonesian', ms: 'Malay', vi: 'Vietnamese', fa: 'Persian', he: 'Hebrew',
   cs: 'Czech', hu: 'Hungarian', ro: 'Romanian', uk: 'Ukrainian', bn: 'Bengali',

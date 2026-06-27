@@ -1387,6 +1387,49 @@
     color: rgba(206, 206, 251, 0.9);
     font-weight: 600;
   }
+  .theatres-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+  .fandango-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 11px 16px;
+    background: linear-gradient(135deg, #c4adff 0%, #AB8BFF 50%, #8b5cf6 100%);
+    box-shadow: 0 0 18px rgba(171, 139, 255, 0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: box-shadow 0.2s, transform 0.15s;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .fandango-btn::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    transform: skewX(-20deg);
+    animation: fandango-shine 3s infinite;
+  }
+  @keyframes fandango-shine {
+    0%   { left: -60%; }
+    60%  { left: 130%; }
+    100% { left: 130%; }
+  }
+  .fandango-btn:hover { box-shadow: 0 0 28px rgba(171, 139, 255, 0.7), inset 0 1px 0 rgba(255,255,255,0.3); transform: translateY(-1px); }
   .watch-rent-label {
     font-size: 11px;
     font-weight: 600;
@@ -3984,6 +4027,23 @@
     margin-top: 2px;
   }
 
+  .mob-theatres-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .fandango-btn--compact {
+    display: inline-block;
+    padding: 7px 14px;
+    background: #AB8BFF;
+    color: #0a0a1a;
+    font-weight: 700;
+    font-size: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .fandango-btn--compact:hover { background: #c4adff; }
   .mob-stat-unavailable {
     color: rgba(168, 181, 219, 0.45);
     font-style: italic;
