@@ -7,6 +7,7 @@ import MovieDetailsSkeleton from '../components/MovieDetailsSkeleton'
 import Card from '../components/Card'
 import { API_BASE_URL, API_OPTIONS, WATCH_REGION } from '../config'
 import { cachedFetch, TTL } from '../lib/apiCache'
+import { getUserRegion, pickWatchProviders } from '../lib/region'
 import { scrollToTop, scrollToElement } from '../lib/lenisScroll'
 import { usePageMeta } from '../lib/usePageMeta'
 import { useAuth } from '../contexts/AuthContext'
@@ -314,6 +315,10 @@ export default function MovieDetails({ routeId } = {}) {
       setTheatrical(null)
       setDigital(null)
       try {
+        // Runs alongside the main fetch, not after it — a slow/hung geo
+        // lookup should never delay the page.
+        const regionPromise = getUserRegion(WATCH_REGION)
+
         // One request via append_to_response — 5× fewer round trips.
         const data = await cachedFetch(
           `${API_BASE_URL}/movie/${id}?append_to_response=credits,videos,images,release_dates,watch/providers,recommendations,reviews,external_ids&include_image_language=en,null`,
@@ -329,7 +334,9 @@ export default function MovieDetails({ routeId } = {}) {
         const relDates = usRelease?.release_dates || []
         setTheatrical(relDates.find(d => d.type === 3)?.release_date || null)
         setDigital(relDates.find(d => d.type === 4)?.release_date || null)
-        setWatch(data['watch/providers']?.results?.[WATCH_REGION] || null)
+        const userRegion = await regionPromise
+        if (cancelled) return
+        setWatch(pickWatchProviders(data['watch/providers']?.results, userRegion, WATCH_REGION))
 
         setMovie(data)
         setCast(data.credits?.cast?.slice(0, 15) || [])

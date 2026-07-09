@@ -357,6 +357,47 @@ export default function BrowsePage({ defaultSection = 'movies', basePath = '/bro
   const listRef = useRef(null)
   useRevealOnScroll(listRef, [movieList, isLoading, tab, section])
 
+  // ── Restore scroll position when returning from a detail page ──────────────
+  // Native browser scroll restoration fires before the async fetch above
+  // repopulates the grid (landing back at the top), and can also fire its own
+  // scroll-to-0 that would clobber a naive live-written sessionStorage value.
+  // So: take control of restoration ourselves, track the last scroll position
+  // in a ref, and only persist it once — on unmount, i.e. the instant we
+  // actually leave the page.
+  const scrollKey = `browse-scroll:${basePath}?${searchParams.toString()}`
+  const restoredRef = useRef(false)
+  const lastScrollRef = useRef(0)
+
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
+  }, [])
+
+  useEffect(() => {
+    lastScrollRef.current = window.scrollY
+    const onScroll = () => { lastScrollRef.current = window.scrollY }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      sessionStorage.setItem(scrollKey, String(lastScrollRef.current))
+    }
+  }, [scrollKey])
+
+  useEffect(() => {
+    if (restoredRef.current || isLoading || movieList.length === 0) return
+    restoredRef.current = true
+    const target = Number(sessionStorage.getItem(scrollKey))
+    if (!target) return
+
+    // Poster images still loading in can grow the page after this fires, so
+    // keep nudging back to `target` for a bit rather than scrolling once.
+    let attempts = 0
+    const tryScroll = () => {
+      window.scrollTo({ top: target })
+      if (++attempts < 6) setTimeout(tryScroll, 150)
+    }
+    requestAnimationFrame(tryScroll)
+  }, [isLoading, movieList, scrollKey])
+
   // ── Coming Soon reminder state ────────────────────────────────────────────
   const { user } = useAuth()
   const [showAuth, setShowAuth] = useState(false)
