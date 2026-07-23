@@ -2961,7 +2961,7 @@
 
   .person-known-for-scroll {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 190px));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     justify-content: center;
     gap: 14px;
   }
@@ -8821,9 +8821,13 @@
 /* ── Person filmography grid ── */
 .person-filmography-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 190px));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   justify-content: center;
   gap: 14px;
+}
+.person-filmography-grid .movie-card,
+.person-known-for-scroll .movie-card {
+  max-width: 190px;
 }
 
 /* ── Person photo gallery ── */
