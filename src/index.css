@@ -8895,7 +8895,9 @@
 }
 .person-filmography-grid .movie-card,
 .person-known-for-scroll .movie-card {
+  width: 100%;
   max-width: 190px;
+  min-width: 0;
 }
 
 /* ── Person photo gallery ── */
