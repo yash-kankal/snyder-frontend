@@ -16,7 +16,9 @@ const PROVIDERS = [
   { id: '350',  name: 'Apple TV+',   badge: 'TV', region: 'IN', color: '#555560' },
   { id: '2336', name: 'JioHotstar',  badge: 'JH', region: 'IN', color: '#1C59CF', localLogo: '/jio.svg' },
   { id: '337',  name: 'Disney+',     badge: 'D+', region: 'US', color: '#113CCF' },
+  { id: '1899', name: 'HBO Max',     badge: 'Max', region: 'US', color: '#002BE7', localLogo: '/hbo-max.svg' },
   { id: '15',   name: 'Hulu',        badge: 'H',  region: 'US', color: '#1CE783' },
+  { id: '2303', name: 'Paramount+',  badge: 'P+', region: 'US', color: '#0064FF', localLogo: '/paramount.svg' },
   { id: '283',  name: 'Crunchyroll', badge: 'CR', region: 'IN', color: '#F47521' },
 ]
 

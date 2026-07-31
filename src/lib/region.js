@@ -54,7 +54,11 @@ export async function getUserRegion(fallback = 'IN') {
   const region = await detectRegion()
   if (!region) return fallback
 
-  localStorage.setItem(CACHE_KEY, JSON.stringify({ region, ts: Date.now() }))
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ region, ts: Date.now() }))
+  } catch {
+    // Storage disabled/full (e.g. Safari private mode) — caching is a nice-to-have.
+  }
   return region
 }
 

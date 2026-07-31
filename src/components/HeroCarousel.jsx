@@ -10,6 +10,8 @@ const INTERVAL = 6000 // ms between auto-advances
 export default function HeroCarousel({ mediaType = 'movie' }) {
   const [movies, setMovies]       = useState([])
   const [activeIndex, setActive]  = useState(0)
+  const [failed, setFailed]       = useState(false)
+  const [retryTick, setRetryTick] = useState(0)
   const timerRef                  = useRef(null)
   const posterRef                 = useRef(null)
 
@@ -43,15 +45,17 @@ export default function HeroCarousel({ mediaType = 'movie' }) {
     if (cached) {
       setMovies(cached.results?.slice(0, 10).filter(m => m.backdrop_path) || [])
       setActive(0)
+      setFailed(false)
       return
     }
 
     setMovies([])
     setActive(0)
+    setFailed(false)
     cachedFetch(endpoint, API_OPTIONS, TTL.browse)
       .then(data => setMovies(data.results?.slice(0, 10).filter(m => m.backdrop_path) || []))
-      .catch(() => {})
-  }, [mediaType])
+      .catch(() => setFailed(true))
+  }, [mediaType, retryTick])
 
   // Auto-rotate; restart whenever user manually picks a card
   const startTimer = (movies) => {
@@ -74,6 +78,15 @@ export default function HeroCarousel({ mediaType = 'movie' }) {
 
   const handlePrev = () => handlePick((activeIndex - 1 + movies.length) % movies.length)
   const handleNext = () => handlePick((activeIndex + 1) % movies.length)
+
+  if (failed) {
+    return (
+      <div className="hero-error">
+        <p>Couldn&apos;t load trending {mediaType === 'tv' ? 'shows' : mediaType === 'anime' ? 'anime' : 'movies'}.</p>
+        <button className="hero-error-retry" onClick={() => setRetryTick(t => t + 1)}>Try again</button>
+      </div>
+    )
+  }
 
   if (!movies.length) {
     return (

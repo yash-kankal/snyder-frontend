@@ -56,10 +56,10 @@ const PROVIDERS = [
   { id: '309',  label: 'Sun NXT',        region: 'IN' },
   // US
   { id: '337',  label: 'Disney+',        region: 'US' },
-  { id: '384',  label: 'HBO Max',        region: 'US' },
+  { id: '1899', label: 'HBO Max',        region: 'US' },
   { id: '15',   label: 'Hulu',           region: 'US' },
   { id: '386',  label: 'Peacock',        region: 'US' },
-  { id: '531',  label: 'Paramount+',     region: 'US' },
+  { id: '2303', label: 'Paramount+',     region: 'US' },
 ]
 
 const MOVIE_GENRES = [
